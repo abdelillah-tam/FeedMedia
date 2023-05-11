@@ -12,8 +12,7 @@ class CreatePostView extends StatefulWidget {
 
 class _CreatePostViewState extends State<CreatePostView> {
   late final TextEditingController _postTextController;
-  final PostController _postController = Get.put(PostController());
-
+  final PostController _postController = Get.find();
 
   @override
   void initState() {
@@ -37,36 +36,22 @@ class _CreatePostViewState extends State<CreatePostView> {
               cursorHeight: (height < 720 ? 15 : 20.0),
               cursorRadius: const Radius.circular(18.0),
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
                 labelStyle: TextStyle(
-                  fontFamily: 'Sofia',
                   fontSize: (height < 720 ? 12 : 16.0),
-                  color: const Color.fromRGBO(106, 124, 159, 1.0),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Color.fromRGBO(106, 124, 159, 1.0),
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(360.0),
-                ),
-                border: OutlineInputBorder(
-                  borderSide: const BorderSide(
-                    color: Color.fromRGBO(106, 124, 159, 1.0),
-                    width: 1.5,
-                  ),
-                  borderRadius: BorderRadius.circular(360.0),
                 ),
               ),
               style: const TextStyle(
-                  color: Color.fromRGBO(1, 10, 28, 1.0), fontFamily: 'Sofia'),
+                color: Color.fromRGBO(1, 10, 28, 1.0),
+              ),
               keyboardType: TextInputType.text,
               autocorrect: false,
             ),
-            TextButton(onPressed: () {
-              final post = _postTextController.text;
-              _postController.post(postText: post);
-            }, child: const Text('Post')),
+            TextButton(
+                onPressed: () {
+                  final post = _postTextController.text;
+                  _postController.post(postText: post);
+                },
+                child: const Text('Post')),
           ],
         ),
       ),

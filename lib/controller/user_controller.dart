@@ -10,7 +10,9 @@ class UserController extends GetxController {
   late final RemoteUserProvider _remoteUserProvider;
   late final LocalUserProvider _localUserProvider;
 
-  late final User? user;
+  late User? user;
+
+  RxInt followersCount = 0.obs;
 
   @override
   void onInit() async {
@@ -41,7 +43,6 @@ class UserController extends GetxController {
     final userFromNet =
         await _remoteUserProvider.login(email: email, password: password);
 
-
     await _localUserProvider.login(userFromNet!);
 
     user = await getUser();
@@ -51,9 +52,11 @@ class UserController extends GetxController {
 
   Future<bool> createPassword(
       String objectId, String userToken, String password) async {
-    final isPasswordCreated = await _remoteUserProvider.createPassword(objectId, password, userToken);
+    final isPasswordCreated =
+        await _remoteUserProvider.createPassword(objectId, password, userToken);
 
-    final result = await _localUserProvider.createPassword(isPasswordCreated ? 1 : 0);
+    final result =
+        await _localUserProvider.createPassword(isPasswordCreated ? 1 : 0);
 
     _localUserProvider.clearTable();
 
@@ -64,7 +67,6 @@ class UserController extends GetxController {
     required String firstName,
     required String lastName,
   }) async {
-
     final updatedUser = await _remoteUserProvider.updateFirstAndLastName(
       firstName: firstName,
       lastName: lastName,
@@ -83,7 +85,7 @@ class UserController extends GetxController {
     return result;
   }
 
-  Future<List<User?>> searchUsers(String value) async{
+  Future<List<User?>> searchUsers(String value) async {
     final users = await _remoteUserProvider.search(value);
     users.removeWhere((element) => element?.objectId == user!.objectId);
     return users;
@@ -95,9 +97,55 @@ class UserController extends GetxController {
     return user;
   }
 
-  @override
-  void onClose() async {
-    (_localUserProvider as LocalUserService);
-    super.onClose();
+  Future<bool> isFollower({
+    required String targetedUserObjectId,
+    required String userObjectId,
+  }) async {
+    final result = await _remoteUserProvider.isFollower(
+        targetedUserObjectId: targetedUserObjectId, userObjectId: userObjectId);
+    return result;
+  }
+
+  Future<void> follow({
+    required String currentUserObjectId,
+    required String userFollowersObjectId,
+    required String userObjectId,
+    required String currentFollowersObjectId,
+    required String userToken,
+  }
+  ) async {
+    await _remoteUserProvider.follow(
+      currentUserObjectId: currentUserObjectId,
+      userFollowersObjectId: userFollowersObjectId,
+      userToken: userToken,
+      userObjectId: userObjectId,
+      currentFollowersObjectId: currentFollowersObjectId,
+    );
+    getFollowersCount(userFollowersObjectId);
+  }
+
+  Future<void> unfollow({
+    required String currentUserObjectId,
+    required String userFollowersObjectId,
+    required String userObjectId,
+    required String currentFollowersObjectId,
+    required String userToken,
+  }
+  ) async {
+    await _remoteUserProvider.unfollow(
+      currentUserObjectId: currentUserObjectId,
+      currentFollowersObjectId: currentFollowersObjectId,
+      userFollowersObjectId: userFollowersObjectId,
+      userObjectId: userObjectId,
+      userToken: userToken,
+    );
+
+    getFollowersCount(userFollowersObjectId);
+  }
+
+  void getFollowersCount(String followersObjectId) async {
+    followersCount.value = 0;
+    final count = await _remoteUserProvider.followersCount(followersObjectId);
+    followersCount.value = count;
   }
 }

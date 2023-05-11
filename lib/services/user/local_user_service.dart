@@ -25,6 +25,7 @@ class LocalUserService extends LocalUserProvider {
       firstNameFieldName: user.firstName,
       lastNameFieldName: user.lastName,
       isPasswordCreatedFieldName: user.isPasswordCreated,
+      followersObjectIdFieldName: user.followersObjectId,
     });
   }
 
@@ -44,6 +45,7 @@ class LocalUserService extends LocalUserProvider {
         firstName: list[0][firstNameFieldName].toString(),
         lastName: list[0][lastNameFieldName].toString(),
         isPasswordCreated: list[0][isPasswordCreatedFieldName] as int,
+        followersObjectId: list[0][followersObjectIdFieldName].toString(),
       );
     } else {
       return null;
@@ -111,6 +113,7 @@ class LocalUserService extends LocalUserProvider {
       firstNameFieldName: user.firstName,
       lastNameFieldName: user.lastName,
       isPasswordCreatedFieldName: user.isPasswordCreated,
+      followersObjectIdFieldName: user.followersObjectId,
     });
 
     if (userId != 0) {
@@ -129,6 +132,7 @@ class LocalUserService extends LocalUserProvider {
         firstName: gotUser[0][firstNameFieldName].toString(),
         lastName: gotUser[0][lastNameFieldName].toString(),
         isPasswordCreated: gotUser[0][isPasswordCreatedFieldName] as int,
+        followersObjectId: gotUser[0][followersObjectIdFieldName].toString(),
       );
       return userFromDb;
     }
@@ -175,6 +179,7 @@ $userTokenFieldName TEXT NOT NULL,
 $firstNameFieldName TEXT NOT NULL,
 $lastNameFieldName TEXT NOT NULL,
 $isPasswordCreatedFieldName INTEGER NOT NULL,
+$followersObjectIdFieldName TEXT NOT NULL,
 PRIMARY KEY ("id")
 );
 ''';
@@ -187,3 +192,4 @@ const userTokenFieldName = 'user_token';
 const firstNameFieldName = 'first_name';
 const lastNameFieldName = 'last_name';
 const isPasswordCreatedFieldName = 'isPasswordCreated';
+const followersObjectIdFieldName = 'followersObjectId';

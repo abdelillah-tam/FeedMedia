@@ -10,9 +10,16 @@ abstract class RemoteUserProvider {
     return null;
   }
 
-  Future<bool> createPassword(String objectId, String password, String userToken);
+  Future<bool> createPassword(
+    String objectId,
+    String password,
+    String userToken,
+  );
 
-  Future<User?> login({String email, String password});
+  Future<User?> login({
+    String email,
+    String password,
+  });
 
   Future<dynamic> updateFirstAndLastName({
     required String firstName,
@@ -24,4 +31,30 @@ abstract class RemoteUserProvider {
   Future<List<User?>> search(String value);
 
   Future<User> getPublicUser(String objectId);
+
+  Future<void> follow({
+    required String currentUserObjectId,
+    required String currentFollowersObjectId,
+    required String userFollowersObjectId,
+    required String userObjectId,
+    required String userToken,
+  }
+  );
+
+  Future<int> followersCount(String objectId);
+
+  Future<bool> isFollower({
+    required String targetedUserObjectId,
+    required String userObjectId,
+  });
+
+  Future<void> unfollow({
+    required String currentUserObjectId,
+    required String currentFollowersObjectId,
+    required String userFollowersObjectId,
+    required String userObjectId,
+    required String userToken,
+  });
+
+
 }

@@ -3,6 +3,7 @@ import 'package:feedmedia/view/sign_in_view.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../constants.dart';
 import '../controller/user_controller.dart';
 import 'home_view.dart';
 
@@ -46,11 +47,10 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                       Navigator.of(context).pop();
                     },
                     icon: const Icon(Icons.arrow_back_rounded)),
-                backgroundColor: const Color.fromRGBO(18, 91, 228, 1.0),
-                elevation: 0.0,
+                backgroundColor: blue,
               )
             : null,
-        backgroundColor: const Color.fromRGBO(18, 91, 228, 1.0),
+        backgroundColor: blue,
         body: Center(
           child: Column(
             children: [
@@ -97,8 +97,7 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                           Text(
                             'Create ',
                             style: TextStyle(
-                              color: const Color.fromRGBO(1, 10, 28, 1.0),
-                              fontFamily: 'Sofia',
+                              color: darkBlue,
                               fontWeight: FontWeight.bold,
                               fontSize: (height < 720 ? 12 : 16.0),
                             ),
@@ -106,8 +105,7 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                           Text(
                             'First Name',
                             style: TextStyle(
-                              color: const Color.fromRGBO(18, 91, 228, 1.0),
-                              fontFamily: 'Sofia',
+                              color: blue,
                               fontWeight: FontWeight.bold,
                               fontSize: (height < 720 ? 12 : 16.0),
                             ),
@@ -115,8 +113,7 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                           Text(
                             ' and ',
                             style: TextStyle(
-                              color: const Color.fromRGBO(1, 10, 28, 1.0),
-                              fontFamily: 'Sofia',
+                              color: darkBlue,
                               fontWeight: FontWeight.bold,
                               fontSize: (height < 720 ? 12 : 16.0),
                             ),
@@ -124,8 +121,7 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                           Text(
                             'Last Name',
                             style: TextStyle(
-                              color: const Color.fromRGBO(18, 91, 228, 1.0),
-                              fontFamily: 'Sofia',
+                              color: blue,
                               fontWeight: FontWeight.bold,
                               fontSize: (height < 720 ? 12 : 16.0),
                             ),
@@ -144,32 +140,12 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                           cursorHeight: (height < 720 ? 15.0 : 20.0),
                           cursorRadius: const Radius.circular(18.0),
                           decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
                             labelText: 'First Name',
                             labelStyle: TextStyle(
-                              fontFamily: 'Sofia',
                               fontSize: (height < 720 ? 12 : 16.0),
-                              color: const Color.fromRGBO(106, 124, 159, 1.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Color.fromRGBO(106, 124, 159, 1.0),
-                                width: 1.5,
-                              ),
-                              borderRadius: BorderRadius.circular(360.0),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Color.fromRGBO(106, 124, 159, 1.0),
-                                width: 1.5,
-                              ),
-                              borderRadius: BorderRadius.circular(360.0),
                             ),
                           ),
-                          style: const TextStyle(
-                              color: Color.fromRGBO(1, 10, 28, 1.0),
-                              fontFamily: 'Sofia'),
+                          style: const TextStyle(color: darkBlue),
                           autocorrect: false,
                           autofocus: true,
                           keyboardType: TextInputType.text,
@@ -187,32 +163,12 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                           cursorHeight: (height < 720 ? 15 : 20.0),
                           cursorRadius: const Radius.circular(18.0),
                           decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 16.0),
                             labelText: 'Last Name',
                             labelStyle: TextStyle(
-                              fontFamily: 'Sofia',
                               fontSize: (height < 720 ? 12 : 16.0),
-                              color: const Color.fromRGBO(106, 124, 159, 1.0),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Color.fromRGBO(106, 124, 159, 1.0),
-                                width: 1.5,
-                              ),
-                              borderRadius: BorderRadius.circular(360.0),
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: const BorderSide(
-                                color: Color.fromRGBO(106, 124, 159, 1.0),
-                                width: 1.5,
-                              ),
-                              borderRadius: BorderRadius.circular(360.0),
                             ),
                           ),
-                          style: const TextStyle(
-                              color: Color.fromRGBO(1, 10, 28, 1.0),
-                              fontFamily: 'Sofia'),
+                          style: const TextStyle(color: darkBlue),
                           keyboardType: TextInputType.text,
                           autocorrect: false,
                         ),
@@ -236,8 +192,7 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                             }
                           },
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromRGBO(18, 91, 228, 1.0),
+                            backgroundColor: blue,
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(360.0),
                             ),
@@ -246,7 +201,6 @@ class _EnterFirstLastNameViewState extends State<EnterFirstLastNameView> {
                             'Update Information',
                             style: TextStyle(
                               color: Colors.white,
-                              fontFamily: 'Sofia',
                             ),
                           ),
                         ),

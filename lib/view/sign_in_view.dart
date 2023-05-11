@@ -1,4 +1,4 @@
-import 'package:feedmedia/main.dart';
+import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/move_to_page.dart';
 import 'package:feedmedia/view/authentication_view.dart';
 import 'package:feedmedia/view/enter_first_last_name_view.dart';
@@ -40,11 +40,10 @@ class _SignInViewState extends State<SignInView> {
                       Navigator.of(context).pop();
                     },
                     icon: const Icon(Icons.arrow_back_rounded)),
-                backgroundColor: const Color.fromRGBO(18, 91, 228, 1.0),
-                elevation: 0.0,
+                backgroundColor: blue,
               )
             : null,
-        backgroundColor: const Color.fromRGBO(18, 91, 228, 1.0),
+        backgroundColor: blue,
         body: Column(
           children: [
             SizedBox(
@@ -90,8 +89,7 @@ class _SignInViewState extends State<SignInView> {
                         Text(
                           'Sign In to ',
                           style: TextStyle(
-                            color: const Color.fromRGBO(1, 10, 28, 1.0),
-                            fontFamily: 'Sofia',
+                            color: darkBlue,
                             fontWeight: FontWeight.bold,
                             fontSize: (height < 720 ? 12 : 16.0),
                           ),
@@ -99,8 +97,7 @@ class _SignInViewState extends State<SignInView> {
                         Text(
                           'FeedMedia',
                           style: TextStyle(
-                            color: const Color.fromRGBO(18, 91, 228, 1.0),
-                            fontFamily: 'Sofia',
+                            color: blue,
                             fontWeight: FontWeight.bold,
                             fontSize: (height < 720 ? 12 : 16.0),
                           ),
@@ -114,37 +111,16 @@ class _SignInViewState extends State<SignInView> {
                       height: (height < 720 ? 30.0 : 40.0),
                       child: TextField(
                         controller: _emailTextController,
-                        cursorColor: const Color.fromRGBO(1, 10, 28, 1.0),
                         cursorWidth: 1.0,
                         cursorHeight: (height < 720 ? 15.0 : 20.0),
                         cursorRadius: const Radius.circular(18.0),
                         decoration: InputDecoration(
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16.0),
                           labelText: 'Email Id',
                           labelStyle: TextStyle(
-                            fontFamily: 'Sofia',
                             fontSize: (height < 720 ? 12 : 16.0),
-                            color: const Color.fromRGBO(106, 124, 159, 1.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Color.fromRGBO(106, 124, 159, 1.0),
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(360.0),
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Color.fromRGBO(106, 124, 159, 1.0),
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(360.0),
                           ),
                         ),
-                        style: const TextStyle(
-                            color: Color.fromRGBO(1, 10, 28, 1.0),
-                            fontFamily: 'Sofia'),
+                        style: const TextStyle(color: darkBlue),
                         keyboardType: TextInputType.emailAddress,
                         autocorrect: false,
                       ),
@@ -156,37 +132,16 @@ class _SignInViewState extends State<SignInView> {
                       height: (height < 720 ? 30.0 : 40.0),
                       child: TextField(
                         controller: _passwordTextController,
-                        cursorColor: const Color.fromRGBO(1, 10, 28, 1.0),
                         cursorWidth: 1.0,
                         cursorHeight: (height < 720 ? 15 : 20.0),
                         cursorRadius: const Radius.circular(18.0),
                         decoration: InputDecoration(
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16.0),
                           labelText: 'Password',
                           labelStyle: TextStyle(
-                            fontFamily: 'Sofia',
                             fontSize: (height < 720 ? 12 : 16.0),
-                            color: const Color.fromRGBO(106, 124, 159, 1.0),
-                          ),
-                          focusedBorder: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Color.fromRGBO(106, 124, 159, 1.0),
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(360.0),
-                          ),
-                          border: OutlineInputBorder(
-                            borderSide: const BorderSide(
-                              color: Color.fromRGBO(106, 124, 159, 1.0),
-                              width: 1.5,
-                            ),
-                            borderRadius: BorderRadius.circular(360.0),
                           ),
                         ),
-                        style: const TextStyle(
-                            color: Color.fromRGBO(1, 10, 28, 1.0),
-                            fontFamily: 'Sofia'),
+                        style: const TextStyle(color: darkBlue),
                         keyboardType: TextInputType.visiblePassword,
                         obscureText: true,
                         autocorrect: false,
@@ -223,8 +178,7 @@ class _SignInViewState extends State<SignInView> {
                           }
                         },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromRGBO(18, 91, 228, 1.0),
+                          backgroundColor: blue,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(360.0),
                           ),
@@ -233,7 +187,6 @@ class _SignInViewState extends State<SignInView> {
                           'Sign In',
                           style: TextStyle(
                             color: Colors.white,
-                            fontFamily: 'Sofia',
                           ),
                         ),
                       ),

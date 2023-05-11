@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:feedmedia/model/user.dart';
+import 'package:feedmedia/services/user/local_user_service.dart';
 import 'package:feedmedia/services/user/remote_user_provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -11,7 +12,7 @@ class RemoteUserService extends RemoteUserProvider {
   }) async {
     final request = await http.post(
       Uri.parse(
-          'https://zestfulairplane.backendless.app/api/users/oauth/googleplus/login'),
+          'https://cozyproperty.backendless.app/api/users/oauth/googleplus/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(<String, dynamic>{
         'accessToken': accessToken!,
@@ -20,15 +21,39 @@ class RemoteUserService extends RemoteUserProvider {
     );
 
     final response = jsonDecode(request.body);
+    final followersRequest = await http.post(
+      Uri.parse('https://cozyproperty.backendless.app/api/data/followers'),
+      headers: {
+        'Content-Type': 'application/json',
+        'user-token': response['user-token'],
+      },
+      body: jsonEncode(<String, dynamic>{}),
+    );
+    final followersResponse = jsonDecode(followersRequest.body);
 
-    return User.fromJson(response);
+    final addFollowersObjectId = await http.put(
+      Uri.parse(
+          'https://cozyproperty.backendless.app/api/users/${response['objectId']}'),
+      headers: {
+        'Content-Type': 'application/json',
+        'user-token': response['user-token'],
+      },
+      body: jsonEncode(<String, dynamic>{
+        followersObjectIdFieldName: followersResponse['objectId'],
+      }),
+    );
+
+    final finalResponse = jsonDecode(addFollowersObjectId.body);
+    final user = User.fromJson(finalResponse);
+    user.userToken = response['user-token'].toString();
+    return user;
   }
 
   @override
   Future<bool> createPassword(
       String objectId, String password, String userToken) async {
     final request = await http.put(
-      Uri.parse('https://zestfulairplane.backendless.app/api/users/$objectId'),
+      Uri.parse('https://cozyproperty.backendless.app/api/users/$objectId'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -46,7 +71,7 @@ class RemoteUserService extends RemoteUserProvider {
   @override
   Future<User?> login({String? email, String? password}) async {
     final request = await http.post(
-      Uri.parse('https://zestfulairplane.backendless.app/api/users/login'),
+      Uri.parse('https://cozyproperty.backendless.app/api/users/login'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -69,7 +94,7 @@ class RemoteUserService extends RemoteUserProvider {
     required String objectId,
   }) async {
     final request = await http.put(
-      Uri.parse('https://zestfulairplane.backendless.app/api/users/$objectId'),
+      Uri.parse('https://cozyproperty.backendless.app/api/users/$objectId'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -89,7 +114,7 @@ class RemoteUserService extends RemoteUserProvider {
   Future<List<User?>> search(String value) async {
     final request = await http.get(
       Uri.parse(
-          "https://zestfulairplane.backendless.app/api/data/Users?where=first_name LIKE '$value%'&property=first_name&property=last_name&property=objectId"),
+          "https://cozyproperty.backendless.app/api/data/Users?where=first_name LIKE '$value%'&property=first_name&property=last_name&property=objectId"),
     );
 
     final response = jsonDecode(request.body) as List;
@@ -100,15 +125,106 @@ class RemoteUserService extends RemoteUserProvider {
   @override
   Future<User> getPublicUser(String objectId) async {
     final request = await http.get(
-      Uri.parse(
-          'https://zestfulairplane.backendless.app/api/data/Users/$objectId'),
-      headers: {
-        'Content-Type':'application/json'
-      }
-    );
+        Uri.parse(
+            'https://cozyproperty.backendless.app/api/data/Users/$objectId'),
+        headers: {'Content-Type': 'application/json'});
 
     final result = jsonDecode(request.body);
 
     return User.fromJson(result);
+  }
+
+  @override
+  Future<void> follow({
+    required String currentUserObjectId,
+    required String currentFollowersObjectId,
+    required String userFollowersObjectId,
+    required String userObjectId,
+    required String userToken,
+  }
+  ) async {
+    final follower = http.put(
+      Uri.parse(
+          "https://cozyproperty.backendless.app/api/data/followers/$userFollowersObjectId/follower"),
+      headers: {
+        'Content-Type': 'application/json',
+        'user-token': userToken,
+      },
+      body: jsonEncode([currentUserObjectId]),
+    );
+
+    final following = http.put(
+      Uri.parse(
+          'https://cozyproperty.backendless.app/api/data/followers/$currentFollowersObjectId/following'),
+      headers: {
+        'Content-Type': 'application/json',
+        'user-token': userToken,
+      },
+      body: jsonEncode([userObjectId]),
+    );
+
+    await Future.wait([follower, following]);
+  }
+
+  @override
+  Future<int> followersCount(String followersObjectId) async {
+    final request = await http.get(
+      Uri.parse(
+          "https://cozyproperty.backendless.app/api/data/followers/$followersObjectId?property=Count(%60follower%60)"),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    final response = jsonDecode(request.body);
+
+    final count = response['count'];
+
+    return count;
+  }
+
+  @override
+  Future<bool> isFollower({
+    required String targetedUserObjectId,
+    required String userObjectId,
+  }) async {
+    final request = await http.get(
+      Uri.parse(
+          "https://cozyproperty.backendless.app/api/data/followers/$userObjectId/follower?where=objectId='$targetedUserObjectId'"),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    final response = jsonDecode(request.body) as List;
+
+    return response.isNotEmpty;
+  }
+
+  @override
+  Future<void> unfollow({
+    required String currentUserObjectId,
+    required String currentFollowersObjectId,
+    required String userFollowersObjectId,
+    required String userObjectId,
+    required String userToken,
+  }) async {
+    final follower = http.delete(
+      Uri.parse(
+          'https://cozyproperty.backendless.app/api/data/followers/$userFollowersObjectId/follower'),
+      headers: {
+        'Content-Type': 'application/json',
+        'user-token': userToken,
+      },
+      body: jsonEncode([currentUserObjectId]),
+    );
+
+    final following = http.delete(
+      Uri.parse(
+          'https://cozyproperty.backendless.app/api/data/followers/$currentFollowersObjectId/following'),
+      headers: {
+        'Content-Type': 'application/json',
+        'user-token': userToken,
+      },
+      body: jsonEncode([userObjectId]),
+    );
+
+    await Future.wait([follower, following]);
   }
 }

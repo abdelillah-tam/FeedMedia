@@ -1,3 +1,4 @@
+import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/controller/user_controller.dart';
 import 'package:feedmedia/view/enter_password_view.dart';
 import 'package:feedmedia/view/sign_in_view.dart';
@@ -26,7 +27,6 @@ class _AuthenticationViewState extends State<AuthenticationView> {
     final height = MediaQuery.of(context).size.height;
     return SafeArea(
       child: Scaffold(
-        backgroundColor: Colors.white,
         body: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
@@ -45,8 +45,7 @@ class _AuthenticationViewState extends State<AuthenticationView> {
                   child: Text(
                     'Your Best Social Media Platform',
                     style: TextStyle(
-                      color: const Color.fromRGBO(1, 10, 28, 1.0),
-                      fontFamily: 'Sofia',
+                      color: darkBlue,
                       fontSize: (height < 720 ? 21 : 28.0),
                       fontWeight: FontWeight.bold,
                     ),
@@ -66,7 +65,7 @@ class _AuthenticationViewState extends State<AuthenticationView> {
                       );
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromRGBO(18, 91, 228, 1.0),
+                      backgroundColor: blue,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(360.0),
                       ),
@@ -75,7 +74,6 @@ class _AuthenticationViewState extends State<AuthenticationView> {
                       'Sign In',
                       style: TextStyle(
                         color: Colors.white,
-                        fontFamily: 'Sofia',
                       ),
                     ),
                   ),
@@ -114,8 +112,7 @@ class _AuthenticationViewState extends State<AuthenticationView> {
                           child: Text(
                             'Sign Up with Google',
                             style: TextStyle(
-                              color: Color.fromRGBO(1, 10, 28, 1.0),
-                              fontFamily: 'Sofia',
+                              color: darkBlue,
                             ),
                           ),
                         ),
@@ -154,4 +151,3 @@ class _AuthenticationViewState extends State<AuthenticationView> {
     }
   }
 }
-
