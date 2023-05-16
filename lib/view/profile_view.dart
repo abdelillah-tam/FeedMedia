@@ -2,9 +2,12 @@ import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/controller/post_controller.dart';
 import 'package:feedmedia/model/post.dart';
 import 'package:feedmedia/move_to_page.dart';
+import 'package:feedmedia/view/authentication_view.dart';
+import 'package:feedmedia/view/chat_channel_view.dart';
 import 'package:feedmedia/view/edit_profile_view.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../controller/user_controller.dart';
@@ -29,6 +32,33 @@ class _ProfileViewState extends State<ProfileView> {
         title: const Text(
           'My Profile',
         ),
+        actions: [
+          PopupMenuButton(
+            shape: RoundedRectangleBorder(
+              side: const BorderSide(color: coldBlue),
+              borderRadius: BorderRadius.circular(18.0),
+            ),
+            elevation: 0.0,
+            shadowColor: lightBlue,
+            itemBuilder: (context) {
+              return [
+                PopupMenuItem<int>(
+                  height: 30.0,
+                  value: 0,
+                  child: const Text('Log out'),
+                  onTap: () async {
+                    final result = await _userController.logout();
+                    result && mounted
+                        ? Navigator.of(context)
+                            .pushReplacement(createRoute(const AuthenticationView()))
+                        : print('error');
+                  },
+                ),
+              ];
+            },
+          )
+        ],
+        actionsIconTheme: const IconThemeData(color: lightBlue, size: 26.0),
         leading: widget.objectId != null
             ? InkWell(
                 onTap: () {
@@ -40,6 +70,12 @@ class _ProfileViewState extends State<ProfileView> {
                 ),
               )
             : null,
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.white,
+        ),
       ),
       body: widget.objectId != null
           ? FutureBuilder(
@@ -172,50 +208,94 @@ class _ProfileBodyState extends State<ProfileBody>
                   ),
                 ),
               )
-            : ValueListenableBuilder2<bool, bool>(
-                _isLoading,
-                _isFollower,
-                builder: (context, isLoading, isFollower, child) {
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 16.0),
+            : Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ValueListenableBuilder2<bool, bool>(
+                    _isLoading,
+                    _isFollower,
+                    builder: (context, isLoading, isFollower, child) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 16.0, right: 8.0),
+                        child: SizedBox(
+                          width: 120.0,
+                          child: ElevatedButton(
+                            onPressed: isLoading
+                                ? () {}
+                                : () async {
+                                    _isLoading.value = true;
+                                    if (!isFollower) {
+                                      await _userController.follow(
+                                        currentUserObjectId:
+                                            _currentUser.objectId!,
+                                        currentFollowersObjectId:
+                                            _currentUser.followersObjectId,
+                                        userObjectId: _user!.objectId!,
+                                        userFollowersObjectId:
+                                            _user!.followersObjectId,
+                                        userToken: _currentUser.userToken!,
+                                      );
+                                    } else {
+                                      await _userController.unfollow(
+                                        currentUserObjectId:
+                                            _currentUser.objectId!,
+                                        currentFollowersObjectId:
+                                            _currentUser.followersObjectId,
+                                        userObjectId: _user!.objectId!,
+                                        userFollowersObjectId:
+                                            _user!.followersObjectId,
+                                        userToken:
+                                            _userController.user!.userToken!,
+                                      );
+                                    }
+                                    await _userController
+                                        .isFollower(
+                                      targetedUserObjectId:
+                                          _currentUser.objectId!,
+                                      userObjectId: _user!.followersObjectId,
+                                    )
+                                        .then((value) {
+                                      _isLoading.value = false;
+                                      _isFollower.value = value;
+                                    });
+                                  },
+                            style: ElevatedButton.styleFrom(
+                              shape: RoundedRectangleBorder(
+                                side: const BorderSide(color: darkBlue),
+                                borderRadius: BorderRadius.circular(360.0),
+                              ),
+                              backgroundColor: Colors.white,
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20.0,
+                                    width: 20.0,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2.0,
+                                      color: blue,
+                                    ),
+                                  )
+                                : Text(
+                                    isFollower ? 'Following' : 'Follow',
+                                    style: const TextStyle(
+                                      color: darkBlue,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: const Text(''),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 16.0, left: 8.0),
                     child: SizedBox(
                       width: 120.0,
                       child: ElevatedButton(
-                        onPressed: isLoading
-                            ? () {}
-                            : () async {
-                                _isLoading.value = true;
-                                if (!isFollower) {
-                                  await _userController.follow(
-                                    currentUserObjectId: _currentUser.objectId!,
-                                    currentFollowersObjectId:
-                                        _currentUser.followersObjectId,
-                                    userObjectId: _user!.objectId!,
-                                    userFollowersObjectId:
-                                        _user!.followersObjectId,
-                                    userToken: _currentUser.userToken!,
-                                  );
-                                } else {
-                                  await _userController.unfollow(
-                                    currentUserObjectId: _currentUser.objectId!,
-                                    currentFollowersObjectId:
-                                        _currentUser.followersObjectId,
-                                    userObjectId: _user!.objectId!,
-                                    userFollowersObjectId:
-                                        _user!.followersObjectId,
-                                    userToken: _userController.user!.userToken!,
-                                  );
-                                }
-                                await _userController
-                                    .isFollower(
-                                  targetedUserObjectId: _currentUser.objectId!,
-                                  userObjectId: _user!.followersObjectId,
-                                )
-                                    .then((value) {
-                                  _isLoading.value = false;
-                                  _isFollower.value = value;
-                                });
-                              },
+                        onPressed: () {
+                          Navigator.of(context)
+                              .push(createRoute(const ChatChannelView()));
+                        },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
                             side: const BorderSide(color: darkBlue),
@@ -223,26 +303,14 @@ class _ProfileBodyState extends State<ProfileBody>
                           ),
                           backgroundColor: Colors.white,
                         ),
-                        child: isLoading
-                            ? const SizedBox(
-                                height: 20.0,
-                                width: 20.0,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2.0,
-                                  color: blue,
-                                ),
-                              )
-                            : Text(
-                                isFollower ? 'Following' : 'Follow',
-                                style: const TextStyle(
-                                  color: darkBlue,
-                                ),
-                              ),
+                        child: const Text(
+                          'Message',
+                          style: TextStyle(color: darkBlue),
+                        ),
                       ),
                     ),
-                  );
-                },
-                child: const Text(''),
+                  ),
+                ],
               ),
         TabBar(
           controller: _tabController,

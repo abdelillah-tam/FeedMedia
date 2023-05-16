@@ -2,17 +2,19 @@ import 'dart:convert';
 import 'package:feedmedia/model/user.dart';
 import 'package:feedmedia/services/user/local_user_service.dart';
 import 'package:feedmedia/services/user/remote_user_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:http/http.dart' as http;
 
 class RemoteUserService extends RemoteUserProvider {
+  static const _apiAddress = 'https://poeticstamp.backendless.app/api';
+
   @override
   Future<User?> register({
     String? email,
     String? accessToken,
   }) async {
     final request = await http.post(
-      Uri.parse(
-          'https://cozyproperty.backendless.app/api/users/oauth/googleplus/login'),
+      Uri.parse('$_apiAddress/users/oauth/googleplus/login'),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode(<String, dynamic>{
         'accessToken': accessToken!,
@@ -22,7 +24,7 @@ class RemoteUserService extends RemoteUserProvider {
 
     final response = jsonDecode(request.body);
     final followersRequest = await http.post(
-      Uri.parse('https://cozyproperty.backendless.app/api/data/followers'),
+      Uri.parse('$_apiAddress/data/followers'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': response['user-token'],
@@ -32,8 +34,7 @@ class RemoteUserService extends RemoteUserProvider {
     final followersResponse = jsonDecode(followersRequest.body);
 
     final addFollowersObjectId = await http.put(
-      Uri.parse(
-          'https://cozyproperty.backendless.app/api/users/${response['objectId']}'),
+      Uri.parse('$_apiAddress/users/${response['objectId']}'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': response['user-token'],
@@ -51,9 +52,16 @@ class RemoteUserService extends RemoteUserProvider {
 
   @override
   Future<bool> createPassword(
-      String objectId, String password, String userToken) async {
+    String objectId,
+    String password,
+    String userToken,
+    String email,
+  ) async {
+    await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email, password: password);
+
     final request = await http.put(
-      Uri.parse('https://cozyproperty.backendless.app/api/users/$objectId'),
+      Uri.parse('$_apiAddress/users/$objectId'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -61,6 +69,7 @@ class RemoteUserService extends RemoteUserProvider {
       body: jsonEncode(<String, dynamic>{
         'password': password,
         'isPasswordCreated': true,
+        userUidFieldName: FirebaseAuth.instance.currentUser!.uid,
       }),
     );
 
@@ -71,7 +80,7 @@ class RemoteUserService extends RemoteUserProvider {
   @override
   Future<User?> login({String? email, String? password}) async {
     final request = await http.post(
-      Uri.parse('https://cozyproperty.backendless.app/api/users/login'),
+      Uri.parse('$_apiAddress/users/login'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -79,6 +88,11 @@ class RemoteUserService extends RemoteUserProvider {
         'login': email!,
         'password': password!,
       }),
+    );
+
+    await FirebaseAuth.instance.signInWithEmailAndPassword(
+      email: email,
+      password: password,
     );
 
     final response = jsonDecode(request.body);
@@ -94,7 +108,7 @@ class RemoteUserService extends RemoteUserProvider {
     required String objectId,
   }) async {
     final request = await http.put(
-      Uri.parse('https://cozyproperty.backendless.app/api/users/$objectId'),
+      Uri.parse('$_apiAddress/users/$objectId'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -114,7 +128,7 @@ class RemoteUserService extends RemoteUserProvider {
   Future<List<User?>> search(String value) async {
     final request = await http.get(
       Uri.parse(
-          "https://cozyproperty.backendless.app/api/data/Users?where=first_name LIKE '$value%'&property=first_name&property=last_name&property=objectId"),
+          "$_apiAddress/data/Users?where=first_name LIKE '$value%'&property=first_name&property=last_name&property=objectId"),
     );
 
     final response = jsonDecode(request.body) as List;
@@ -125,8 +139,7 @@ class RemoteUserService extends RemoteUserProvider {
   @override
   Future<User> getPublicUser(String objectId) async {
     final request = await http.get(
-        Uri.parse(
-            'https://cozyproperty.backendless.app/api/data/Users/$objectId'),
+        Uri.parse('$_apiAddress/data/Users/$objectId'),
         headers: {'Content-Type': 'application/json'});
 
     final result = jsonDecode(request.body);
@@ -141,11 +154,9 @@ class RemoteUserService extends RemoteUserProvider {
     required String userFollowersObjectId,
     required String userObjectId,
     required String userToken,
-  }
-  ) async {
+  }) async {
     final follower = http.put(
-      Uri.parse(
-          "https://cozyproperty.backendless.app/api/data/followers/$userFollowersObjectId/follower"),
+      Uri.parse("$_apiAddress/data/followers/$userFollowersObjectId/follower"),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -155,7 +166,7 @@ class RemoteUserService extends RemoteUserProvider {
 
     final following = http.put(
       Uri.parse(
-          'https://cozyproperty.backendless.app/api/data/followers/$currentFollowersObjectId/following'),
+          '$_apiAddress/data/followers/$currentFollowersObjectId/following'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -170,7 +181,7 @@ class RemoteUserService extends RemoteUserProvider {
   Future<int> followersCount(String followersObjectId) async {
     final request = await http.get(
       Uri.parse(
-          "https://cozyproperty.backendless.app/api/data/followers/$followersObjectId?property=Count(%60follower%60)"),
+          "$_apiAddress/data/followers/$followersObjectId?property=Count(%60follower%60)"),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -188,7 +199,7 @@ class RemoteUserService extends RemoteUserProvider {
   }) async {
     final request = await http.get(
       Uri.parse(
-          "https://cozyproperty.backendless.app/api/data/followers/$userObjectId/follower?where=objectId='$targetedUserObjectId'"),
+          "$_apiAddress/data/followers/$userObjectId/follower?where=objectId='$targetedUserObjectId'"),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -206,8 +217,7 @@ class RemoteUserService extends RemoteUserProvider {
     required String userToken,
   }) async {
     final follower = http.delete(
-      Uri.parse(
-          'https://cozyproperty.backendless.app/api/data/followers/$userFollowersObjectId/follower'),
+      Uri.parse('$_apiAddress/data/followers/$userFollowersObjectId/follower'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -217,7 +227,7 @@ class RemoteUserService extends RemoteUserProvider {
 
     final following = http.delete(
       Uri.parse(
-          'https://cozyproperty.backendless.app/api/data/followers/$currentFollowersObjectId/following'),
+          '$_apiAddress/data/followers/$currentFollowersObjectId/following'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -226,5 +236,21 @@ class RemoteUserService extends RemoteUserProvider {
     );
 
     await Future.wait([follower, following]);
+  }
+
+  @override
+  Future<dynamic> logout({required String userToken}) async {
+    final result = await http.get(
+      Uri.parse('$_apiAddress/users/logout'),
+      headers: {
+        'Content-Type':'application/json',
+        'user-token': userToken,
+      },
+    );
+   if(result.statusCode == 200 && result.bodyBytes.isEmpty){
+      return true;
+    }else{
+      return false;
+    }
   }
 }

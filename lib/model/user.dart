@@ -1,6 +1,3 @@
-import 'package:flutter/foundation.dart';
-
-@immutable
 class User {
   final String? id;
   final String? email;
@@ -11,6 +8,7 @@ class User {
   final String lastName;
   final int isPasswordCreated;
   final String followersObjectId;
+  final String userUID;
 
   User({
     required this.id,
@@ -22,38 +20,24 @@ class User {
     required this.lastName,
     required this.isPasswordCreated,
     required this.followersObjectId,
+    required this.userUID,
   });
 
   User.fromJson(Map<String, dynamic> json)
-      : this.id = json['id'],
-        this.email = json['email'],
-        this.name = json['name'],
-        this.objectId = json['objectId'],
-        this.userToken = json['user-token'],
-        this.firstName = json['first_name'] ?? 'none',
-        this.lastName = json['last_name'] ?? 'none',
-        this.isPasswordCreated = json['isPasswordCreated'] == null
+      : id = json['id'],
+        email = json['email'],
+        name = json['name'],
+        objectId = json['objectId'],
+        userToken = json['user-token'],
+        firstName = json['first_name'] ?? 'none',
+        lastName = json['last_name'] ?? 'none',
+        isPasswordCreated = json['isPasswordCreated'] == null
             ? -1
             : (json['isPasswordCreated'] as bool)
                 ? 1
                 : 0,
-        this.followersObjectId = json['followersObjectId'] ?? 'none';
-
-  User.fromJsonWithFollowers(
-      Map<String, dynamic> json, Map<String, dynamic> jsonFollowers)
-      : this.id = json['id'],
-        this.email = json['email'],
-        this.name = json['name'],
-        this.objectId = json['objectId'],
-        this.userToken = json['user-token'],
-        this.firstName = json['first_name'] ?? 'none',
-        this.lastName = json['last_name'] ?? 'none',
-        this.isPasswordCreated = json['isPasswordCreated'] == null
-            ? -1
-            : (json['isPasswordCreated'] as bool)
-                ? 1
-                : 0,
-        this.followersObjectId = jsonFollowers['objectId'];
+        followersObjectId = json['followersObjectId'] ?? 'none',
+        userUID = json['userUID'] ?? '';
 
   @override
   bool operator ==(covariant User other) => id == other.id;

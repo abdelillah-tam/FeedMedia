@@ -2,7 +2,10 @@ import 'package:feedmedia/services/user/local_user_provider.dart';
 import 'package:feedmedia/services/user/local_user_service.dart';
 import 'package:feedmedia/services/user/remote_user_provider.dart';
 import 'package:feedmedia/services/user/remote_user_service.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:get/get.dart';
 import 'package:get/state_manager.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 import '../model/user.dart';
 
@@ -25,13 +28,13 @@ class UserController extends GetxController {
 
   Future<User?> registerByGoogle(
       {required String email, required String accessToken}) async {
-    final user = await _remoteUserProvider.register(
+    final registeredUser = await _remoteUserProvider.register(
         email: email, accessToken: accessToken);
 
-    await _localUserProvider.register(user: user);
+    await _localUserProvider.register(user: registeredUser);
 
-    final userFromDb = await getUser();
-    return userFromDb;
+    user = await getUser();
+    return user;
   }
 
   Future<User?> getUser() async {
@@ -51,13 +54,17 @@ class UserController extends GetxController {
   }
 
   Future<bool> createPassword(
-      String objectId, String userToken, String password) async {
-    final isPasswordCreated =
-        await _remoteUserProvider.createPassword(objectId, password, userToken);
+    String objectId,
+    String userToken,
+    String password,
+    String email,
+  ) async {
+    final isPasswordCreated = await _remoteUserProvider.createPassword(
+        objectId, password, userToken, email);
 
     final result =
         await _localUserProvider.createPassword(isPasswordCreated ? 1 : 0);
-
+    FirebaseAuth.instance.signOut();
     _localUserProvider.clearTable();
 
     return result;
@@ -112,8 +119,7 @@ class UserController extends GetxController {
     required String userObjectId,
     required String currentFollowersObjectId,
     required String userToken,
-  }
-  ) async {
+  }) async {
     await _remoteUserProvider.follow(
       currentUserObjectId: currentUserObjectId,
       userFollowersObjectId: userFollowersObjectId,
@@ -130,8 +136,7 @@ class UserController extends GetxController {
     required String userObjectId,
     required String currentFollowersObjectId,
     required String userToken,
-  }
-  ) async {
+  }) async {
     await _remoteUserProvider.unfollow(
       currentUserObjectId: currentUserObjectId,
       currentFollowersObjectId: currentFollowersObjectId,
@@ -147,5 +152,17 @@ class UserController extends GetxController {
     followersCount.value = 0;
     final count = await _remoteUserProvider.followersCount(followersObjectId);
     followersCount.value = count;
+  }
+
+  Future<bool> logout() async{
+    final result = await _remoteUserProvider.logout(userToken: user!.userToken!);
+    if(result){
+      await FirebaseAuth.instance.signOut();
+      await GoogleSignIn().signOut();
+      _localUserProvider.clearTable();
+      return true;
+    }
+
+    return false;
   }
 }

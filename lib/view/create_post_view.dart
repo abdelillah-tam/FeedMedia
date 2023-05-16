@@ -1,6 +1,7 @@
 import 'package:feedmedia/controller/post_controller.dart';
 import 'package:feedmedia/controller/user_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 class CreatePostView extends StatefulWidget {
@@ -26,6 +27,15 @@ class _CreatePostViewState extends State<CreatePostView> {
     final isKeyboard = MediaQuery.of(context).viewInsets.bottom != 0;
 
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Create post'),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          statusBarColor: Colors.white,
+          statusBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
+        ),
+      ),
       body: Center(
         child: Column(
           children: [

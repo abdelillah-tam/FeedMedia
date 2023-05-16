@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "789596897667",
+    "project_id": "feedmedia-572e2",
+    "storage_bucket": "feedmedia-572e2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:789596897667:android:e825e280b66ca21e0d76b6",
+        "android_client_info": {
+          "package_name": "com.feedmedia.app.feedmedia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "789596897667-93q1ear2gr3nrs5ugf1fhhff86th4aeh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDPKv13CXHc0e5DBoAwM09zsRj5n3fw_Qs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "789596897667-613k3st7pe3n9giblodcrp7r1p8681ke.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "789596897667-esipa0eh7saalnssuac27cqapq34rrg5.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.feedmedia.app.feedmedia"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

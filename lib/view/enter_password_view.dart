@@ -2,6 +2,7 @@ import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/move_to_page.dart';
 import 'package:feedmedia/view/sign_in_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../controller/user_controller.dart';
@@ -26,6 +27,8 @@ class _EnterPasswordViewState extends State<EnterPasswordView> {
 
   final UserController userController = Get.find();
 
+  bool _isEqual = true;
+
   @override
   void initState() {
     _passwordTextController = TextEditingController();
@@ -42,11 +45,18 @@ class _EnterPasswordViewState extends State<EnterPasswordView> {
         appBar: !isKeyboard
             ? AppBar(
                 leading: IconButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    icon: const Icon(Icons.arrow_back_rounded)),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  icon: const Icon(Icons.arrow_back_rounded),
+                ),
                 backgroundColor: blue,
+                systemOverlayStyle: const SystemUiOverlayStyle(
+                  statusBarColor: blue,
+                  statusBarIconBrightness: Brightness.light,
+                  systemNavigationBarColor: Colors.white,
+                  systemNavigationBarIconBrightness: Brightness.dark,
+                ),
               )
             : null,
         backgroundColor: blue,
@@ -71,8 +81,8 @@ class _EnterPasswordViewState extends State<EnterPasswordView> {
               ),
               const Spacer(),
               Container(
-                height: (isKeyboard
-                    ? 252.5
+                height: (isKeyboard && height > 720
+                    ? 292.5
                     : height < 720
                         ? 262.5
                         : 350),
@@ -114,47 +124,60 @@ class _EnterPasswordViewState extends State<EnterPasswordView> {
                       SizedBox(
                         height: (height < 720 ? 22.5 : 30),
                       ),
-                      SizedBox(
-                        height: (height < 720 ? 30.0 : 40.0),
-                        child: TextField(
-                          controller: _passwordTextController,
-                          cursorWidth: 1.0,
-                          cursorHeight: (height < 720 ? 15.0 : 20.0),
-                          cursorRadius: const Radius.circular(18.0),
-                          decoration: InputDecoration(
-                            labelText: 'Password',
-                            labelStyle: TextStyle(
-                              fontSize: (height < 720 ? 12 : 16.0),
-                            ),
+                      TextFormField(
+                        controller: _passwordTextController,
+                        cursorWidth: 1.0,
+                        cursorHeight: (height < 720 ? 15.0 : 20.0),
+                        cursorRadius: const Radius.circular(18.0),
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          labelStyle: TextStyle(
+                            fontSize: (height < 720 ? 12 : 16.0),
                           ),
-                          style: const TextStyle(color: darkBlue),
-                          autocorrect: false,
-                          autofocus: true,
-                          keyboardType: TextInputType.visiblePassword,
-                          obscureText: true,
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
                         ),
+                        style: const TextStyle(color: darkBlue),
+                        autocorrect: false,
+                        autofocus: true,
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: true,
                       ),
                       SizedBox(
                         height: (height < 720 ? 12.5 : 25.0),
                       ),
-                      SizedBox(
-                        height: (height < 720 ? 30.0 : 40.0),
-                        child: TextField(
-                          controller: _reEnterPasswordTextController,
-                          cursorWidth: 1.0,
-                          cursorHeight: (height < 720 ? 15 : 20.0),
-                          cursorRadius: const Radius.circular(18.0),
-                          decoration: InputDecoration(
-                            labelText: 'Re-Enter Password',
-                            labelStyle: TextStyle(
-                              fontSize: (height < 720 ? 12 : 16.0),
-                            ),
+                      TextFormField(
+                        controller: _reEnterPasswordTextController,
+                        cursorWidth: 1.0,
+                        cursorHeight: (height < 720 ? 15 : 20.0),
+                        cursorRadius: const Radius.circular(18.0),
+                        decoration: InputDecoration(
+                          errorMaxLines: 1,
+                          counterText: '',
+                          labelText: 'Re-Enter Password',
+                          labelStyle: TextStyle(
+                            fontSize: (height < 720 ? 12 : 16.0),
                           ),
-                          style: const TextStyle(color: darkBlue),
-                          keyboardType: TextInputType.visiblePassword,
-                          obscureText: true,
-                          autocorrect: false,
+                          errorText: !_isEqual ? 'Error' : null,
+                          floatingLabelBehavior: FloatingLabelBehavior.never,
                         ),
+                        style: const TextStyle(color: darkBlue),
+                        keyboardType: TextInputType.visiblePassword,
+                        obscureText: true,
+                        autocorrect: false,
+                        onChanged: (typed) {
+                          bool result = false;
+                          result = _validatePassword(typed);
+                          setState(() {
+                            _isEqual = result;
+                          });
+                        },
+                        validator: (typed) {
+                          bool result = false;
+                          result = _validatePassword(typed!);
+                          setState(() {
+                            _isEqual = result;
+                          });
+                        },
                       ),
                       const Spacer(),
                       SizedBox(
@@ -164,8 +187,10 @@ class _EnterPasswordViewState extends State<EnterPasswordView> {
                           onPressed: () async {
                             final password = _passwordTextController.text;
                             final result = await userController.createPassword(
-                                widget.objectId, widget.userToken, password);
-
+                                widget.objectId,
+                                widget.userToken,
+                                password,
+                                userController.user!.email!);
                             if (mounted && result) {
                               Navigator.of(context).pushReplacement(
                                 createRoute(const SignInView()),
@@ -202,5 +227,17 @@ class _EnterPasswordViewState extends State<EnterPasswordView> {
         ),
       ),
     );
+  }
+
+  bool _validatePassword(String typed) {
+    if (_passwordTextController.text == typed) {
+      return true;
+    } else if (typed.isEmpty) {
+      return true;
+    } else if (_passwordTextController.text.isEmpty) {
+      return true;
+    }
+
+    return false;
   }
 }

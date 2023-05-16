@@ -3,6 +3,7 @@ import 'package:feedmedia/controller/user_controller.dart';
 import 'package:feedmedia/move_to_page.dart';
 import 'package:feedmedia/view/profile_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 
 import '../model/user.dart';
@@ -34,6 +35,12 @@ class _SearchViewState extends State<SearchView> {
       appBar: AppBar(
         title: const Text(
           'Search',
+        ),
+        systemOverlayStyle: const SystemUiOverlayStyle(
+          systemNavigationBarColor: Colors.white,
+          statusBarColor: Colors.white,
+          systemNavigationBarIconBrightness: Brightness.dark,
+          statusBarIconBrightness: Brightness.dark,
         ),
       ),
       body: Padding(

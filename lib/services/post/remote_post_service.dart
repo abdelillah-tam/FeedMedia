@@ -8,12 +8,12 @@ import 'package:http/http.dart' as http;
 import 'package:http/http.dart';
 
 class RemotePostService extends RemotePostProvider {
-  static const apiAddress = 'https://cozyproperty.backendless.app/api/data';
+  static const _apiAddress = 'https://poeticstamp.backendless.app/api/data';
 
   @override
   Future<dynamic> post({required Post post, required String userToken}) async {
     final request = await http.post(
-      Uri.parse('$apiAddress/posts'),
+      Uri.parse('$_apiAddress/posts'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -34,7 +34,7 @@ class RemotePostService extends RemotePostProvider {
   }) async {
     final request = await http.get(
       Uri.parse(
-          "$apiAddress/posts?where=ownerId='$ownerId'&sortBy=%60created%60%20desc"),
+          "$_apiAddress/posts?where=ownerId='$ownerId'&sortBy=%60created%60%20desc"),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -57,7 +57,7 @@ class RemotePostService extends RemotePostProvider {
   }) async {
     final request = await http.get(
       Uri.parse(
-          "$apiAddress/followers/$currentFollowersObjectId/following?property=objectId&property=last_name&property=first_name"),
+          "$_apiAddress/followers/$currentFollowersObjectId/following?property=objectId&property=last_name&property=first_name"),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -68,7 +68,7 @@ class RemotePostService extends RemotePostProvider {
         (jsonDecode(request.body) as List).map((e) => User.fromJson(e));
 
     final objectsId = response.map((e) => "'${e.objectId}'");
-    final fullUrl = StringBuffer("$apiAddress/posts?where=ownerId IN (");
+    final fullUrl = StringBuffer("$_apiAddress/posts?where=ownerId IN (");
     fullUrl.writeAll(objectsId, ',');
     fullUrl.write(
         ')&property=post&property=updated&property=created&property=objectId&property=ownerId&property=userObjectId&property=Count(%60likes%60)&groupBy=objectId');
@@ -120,7 +120,7 @@ class RemotePostService extends RemotePostProvider {
     required String userToken,
   }) async {
     final request = await http.put(
-      Uri.parse('$apiAddress/posts/$postObjectId/likes'),
+      Uri.parse('$_apiAddress/posts/$postObjectId/likes'),
       headers: {'Content-Type': 'application/json', 'user-token': userToken},
       body: jsonEncode([likerObjectId]),
     );
@@ -137,7 +137,7 @@ class RemotePostService extends RemotePostProvider {
 
     final isLiker = http.get(
       Uri.parse(
-          "$apiAddress/posts/$postObjectId/likes?where=objectId = '$currentUserObjectId'"),
+          "$_apiAddress/posts/$postObjectId/likes?where=objectId = '$currentUserObjectId'"),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -163,7 +163,7 @@ class RemotePostService extends RemotePostProvider {
     required String userToken,
   }) async {
     final request = await http.delete(
-      Uri.parse("$apiAddress/posts/$postObjectId/likes"),
+      Uri.parse("$_apiAddress/posts/$postObjectId/likes"),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,

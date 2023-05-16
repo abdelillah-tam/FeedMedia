@@ -14,6 +14,7 @@ abstract class RemoteUserProvider {
     String objectId,
     String password,
     String userToken,
+    String email,
   );
 
   Future<User?> login({
@@ -38,8 +39,7 @@ abstract class RemoteUserProvider {
     required String userFollowersObjectId,
     required String userObjectId,
     required String userToken,
-  }
-  );
+  });
 
   Future<int> followersCount(String objectId);
 
@@ -56,5 +56,5 @@ abstract class RemoteUserProvider {
     required String userToken,
   });
 
-
+  Future<dynamic> logout({required String userToken});
 }

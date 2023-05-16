@@ -1,4 +1,5 @@
 import 'package:feedmedia/services/user/local_user_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
 import 'package:sqflite/sqflite.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
@@ -26,6 +27,7 @@ class LocalUserService extends LocalUserProvider {
       lastNameFieldName: user.lastName,
       isPasswordCreatedFieldName: user.isPasswordCreated,
       followersObjectIdFieldName: user.followersObjectId,
+      userUidFieldName: '',
     });
   }
 
@@ -46,6 +48,7 @@ class LocalUserService extends LocalUserProvider {
         lastName: list[0][lastNameFieldName].toString(),
         isPasswordCreated: list[0][isPasswordCreatedFieldName] as int,
         followersObjectId: list[0][followersObjectIdFieldName].toString(),
+        userUID: list[0][userUidFieldName].toString(),
       );
     } else {
       return null;
@@ -89,8 +92,13 @@ class LocalUserService extends LocalUserProvider {
     await _ensureDbIsOpen();
     final db = _getDatabaseOrThrown();
 
-    final userId = await db.update(userTableName,
-        <String, int>{isPasswordCreatedFieldName: isPasswordCreated});
+    final userId = await db.update(
+      userTableName,
+      <String, dynamic>{
+        isPasswordCreatedFieldName: isPasswordCreated,
+        userUidFieldName: FirebaseAuth.instance.currentUser!.uid,
+      },
+    );
 
     return userId != 0 ? true : false;
   }
@@ -114,6 +122,7 @@ class LocalUserService extends LocalUserProvider {
       lastNameFieldName: user.lastName,
       isPasswordCreatedFieldName: user.isPasswordCreated,
       followersObjectIdFieldName: user.followersObjectId,
+      userUidFieldName: user.userUID,
     });
 
     if (userId != 0) {
@@ -133,6 +142,7 @@ class LocalUserService extends LocalUserProvider {
         lastName: gotUser[0][lastNameFieldName].toString(),
         isPasswordCreated: gotUser[0][isPasswordCreatedFieldName] as int,
         followersObjectId: gotUser[0][followersObjectIdFieldName].toString(),
+        userUID: gotUser[0][userUidFieldName].toString(),
       );
       return userFromDb;
     }
@@ -178,6 +188,7 @@ $nameFieldName TEXT,
 $userTokenFieldName TEXT NOT NULL,
 $firstNameFieldName TEXT NOT NULL,
 $lastNameFieldName TEXT NOT NULL,
+$userUidFieldName TEXT NOT NULL,
 $isPasswordCreatedFieldName INTEGER NOT NULL,
 $followersObjectIdFieldName TEXT NOT NULL,
 PRIMARY KEY ("id")
@@ -188,6 +199,7 @@ const idFieldName = 'id';
 const emailFieldName = 'email';
 const objectIdFieldName = 'objectId';
 const nameFieldName = 'name';
+const userUidFieldName = 'userUID';
 const userTokenFieldName = 'user_token';
 const firstNameFieldName = 'first_name';
 const lastNameFieldName = 'last_name';

@@ -39,7 +39,7 @@ class _MainViewState extends State<MainView> {
         index: 4, label: 'Profile', iconData: Icons.account_circle_outlined),
   ];
 
-  int _currentIndex = 0;
+  int _currentIndex = 4;
 
   @override
   Widget build(BuildContext context) {
@@ -55,20 +55,22 @@ class _MainViewState extends State<MainView> {
       child: Scaffold(
         appBar: _currentIndex == 0
             ? AppBar(
-                leading: Container(),
-                title: const Text(
-                  'FeedMedia',
-                ),
-                systemOverlayStyle: const SystemUiOverlayStyle(
-                    statusBarColor: Colors.white,
-                    systemNavigationBarColor: Color.fromRGBO(236, 248, 255, 1.0),
-                  statusBarIconBrightness: Brightness.dark,
-                  systemNavigationBarIconBrightness: Brightness.dark,
-                ),
-              )
+          leading: Container(),
+          title: const Text(
+            'FeedMedia',
+          ),
+          systemOverlayStyle: const SystemUiOverlayStyle(
+            statusBarColor: Colors.white,
+            systemNavigationBarColor: Color.fromRGBO(236, 248, 255, 1.0),
+            statusBarIconBrightness: Brightness.dark,
+            systemNavigationBarIconBrightness: Brightness.dark,
+          ),
+        )
             : null,
         bottomNavigationBar: BottomNavigationBar(
           fixedColor: darkBlue,
+          backgroundColor: _currentIndex == 0 ? const Color.fromRGBO(
+              236, 248, 255, 1.0) : Colors.white,
           useLegacyColorScheme: false,
           selectedFontSize: 0.0,
           onTap: (index) {
@@ -79,7 +81,8 @@ class _MainViewState extends State<MainView> {
           currentIndex: _currentIndex,
           items: allDestinations
               .map(
-                (e) => BottomNavigationBarItem(
+                (e) =>
+                BottomNavigationBarItem(
                   icon: Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: Icon(
@@ -90,7 +93,7 @@ class _MainViewState extends State<MainView> {
                   ),
                   label: e.label,
                 ),
-              )
+          )
               .toList(),
         ),
         body: allWidgets[_currentIndex],
@@ -111,7 +114,7 @@ class _HomeViewState extends State<HomeView> {
   final UserController _userController = Get.find();
 
   ValueNotifier<List<FullPost>> listNotifier =
-      ValueNotifier(List<FullPost>.empty());
+  ValueNotifier(List<FullPost>.empty());
 
   late User _currentUser;
 
@@ -141,9 +144,7 @@ class _HomeViewState extends State<HomeView> {
               alignment: Alignment.topLeft,
               child: Text(
                 'My Feeds',
-                style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18.0),
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18.0),
               ),
             ),
             Expanded(
@@ -162,7 +163,7 @@ class _HomeViewState extends State<HomeView> {
                               decoration: const ShapeDecoration(
                                 shape: RoundedRectangleBorder(
                                   borderRadius:
-                                      BorderRadius.all(Radius.circular(30.0)),
+                                  BorderRadius.all(Radius.circular(30.0)),
                                   side: BorderSide(width: 0.5, color: coldBlue),
                                 ),
                               ),
@@ -174,9 +175,9 @@ class _HomeViewState extends State<HomeView> {
                                   children: [
                                     Row(
                                       crossAxisAlignment:
-                                          CrossAxisAlignment.center,
+                                      CrossAxisAlignment.center,
                                       mainAxisAlignment:
-                                          MainAxisAlignment.start,
+                                      MainAxisAlignment.start,
                                       children: [
                                         Image.network(
                                           'https://i.stack.imgur.com/oVKTL.jpg',
@@ -187,7 +188,9 @@ class _HomeViewState extends State<HomeView> {
                                             horizontal: 8.0,
                                           ),
                                           child: Text(
-                                            '${value[index].user.firstName} ${value[index].user.lastName}',
+                                            '${value[index].user
+                                                .firstName} ${value[index].user
+                                                .lastName}',
                                             style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 13.0),
@@ -199,8 +202,7 @@ class _HomeViewState extends State<HomeView> {
                                       padding: const EdgeInsets.only(top: 8.0),
                                       child: Text(
                                         value[index].post.post,
-                                        style: const TextStyle(
-                                            fontSize: 16.0),
+                                        style: const TextStyle(fontSize: 16.0),
                                       ),
                                     ),
                                     Padding(
@@ -208,15 +210,14 @@ class _HomeViewState extends State<HomeView> {
                                       child: Text(
                                         '${value[index].likesCount} likes',
                                         style: const TextStyle(
-                                            color: lightBlue,
-                                            fontSize: 15.0),
+                                            color: lightBlue, fontSize: 15.0),
                                       ),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.only(top: 4.0),
                                       child: Row(
                                         mainAxisAlignment:
-                                            MainAxisAlignment.spaceBetween,
+                                        MainAxisAlignment.spaceBetween,
                                         children: [
                                           GestureDetector(
                                             onDoubleTap: () {
@@ -227,12 +228,12 @@ class _HomeViewState extends State<HomeView> {
                                             },
                                             child: Row(
                                               crossAxisAlignment:
-                                                  CrossAxisAlignment.center,
+                                              CrossAxisAlignment.center,
                                               children: [
                                                 Icon(
                                                   value[index].isLiker
                                                       ? Icons
-                                                          .thumb_up_alt_rounded
+                                                      .thumb_up_alt_rounded
                                                       : Icons.thumb_up_off_alt,
                                                   color: lightBlue,
                                                   size: 30.0,
@@ -308,8 +309,8 @@ class _HomeViewState extends State<HomeView> {
                   } else {
                     return const Center(
                         child: CircularProgressIndicator(
-                      color: blue,
-                    ));
+                          color: blue,
+                        ));
                   }
                 },
               ),
