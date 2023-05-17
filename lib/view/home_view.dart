@@ -1,4 +1,5 @@
 import 'package:feedmedia/controller/post_controller.dart';
+import 'package:feedmedia/utilities/dialogs/loading_screen.dart';
 import 'package:feedmedia/view/create_post_view.dart';
 import 'package:feedmedia/view/messages_view.dart';
 import 'package:feedmedia/view/profile_view.dart';
@@ -39,7 +40,13 @@ class _MainViewState extends State<MainView> {
         index: 4, label: 'Profile', iconData: Icons.account_circle_outlined),
   ];
 
-  int _currentIndex = 4;
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -120,6 +127,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   void initState() {
+
     _currentUser = _userController.user!;
     _postController.getFollowingPosts(
       userToken: _currentUser.userToken!,
@@ -136,6 +144,7 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    LoadingScreen().hide();
     return Padding(
         padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 8.0),
         child: Column(

@@ -1,5 +1,6 @@
 import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/controller/user_controller.dart';
+import 'package:feedmedia/utilities/dialogs/loading_screen.dart';
 import 'package:feedmedia/view/enter_password_view.dart';
 import 'package:feedmedia/view/sign_in_view.dart';
 import 'package:flutter/material.dart';
@@ -17,18 +18,27 @@ class AuthenticationView extends StatefulWidget {
 }
 
 class _AuthenticationViewState extends State<AuthenticationView> {
-  final UserController userController = Get.put(UserController());
+  final UserController userController = Get.find();
 
   final GoogleSignIn _googleSignIng = GoogleSignIn(scopes: [
     'email',
   ]);
 
   @override
+  void initState() {
+    LoadingScreen().hide();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final height = MediaQuery.of(context).size.height;
     return Scaffold(
       appBar: AppBar(
-        leading: null,
+        leading: const Icon(
+          Icons.arrow_back,
+          color: Colors.white,
+        ),
         leadingWidth: 0.1,
         elevation: 0.0,
         backgroundColor: Colors.white,
@@ -146,7 +156,12 @@ class _AuthenticationViewState extends State<AuthenticationView> {
     try {
       final account = await googleSignIng.signIn();
       final auth = await account?.authentication;
+
       if (auth != null) {
+        if (mounted) {
+          LoadingScreen().show(context: context, text: '');
+        }
+        ;
         final user = await userController.registerByGoogle(
           email: account!.email,
           accessToken: auth.accessToken!,
@@ -159,6 +174,7 @@ class _AuthenticationViewState extends State<AuthenticationView> {
         }
       }
     } catch (error) {
+      LoadingScreen().hide();
       return;
     }
   }

@@ -1,5 +1,6 @@
 import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/move_to_page.dart';
+import 'package:feedmedia/utilities/dialogs/loading_screen.dart';
 import 'package:feedmedia/view/authentication_view.dart';
 import 'package:feedmedia/view/enter_first_last_name_view.dart';
 import 'package:feedmedia/view/home_view.dart';
@@ -19,12 +20,13 @@ class SignInView extends StatefulWidget {
 class _SignInViewState extends State<SignInView> {
   late final TextEditingController _emailTextController;
   late final TextEditingController _passwordTextController;
-  final UserController userController = Get.put(UserController());
+  final UserController userController = Get.find();
 
   @override
   void initState() {
     _emailTextController = TextEditingController();
     _passwordTextController = TextEditingController();
+    LoadingScreen().hide();
     super.initState();
   }
 
@@ -127,6 +129,7 @@ class _SignInViewState extends State<SignInView> {
                         labelStyle: TextStyle(
                           fontSize: (height < 720 ? 12 : 16.0),
                         ),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
                       ),
                       style: const TextStyle(color: darkBlue),
                       keyboardType: TextInputType.emailAddress,
@@ -148,6 +151,7 @@ class _SignInViewState extends State<SignInView> {
                         labelStyle: TextStyle(
                           fontSize: (height < 720 ? 12 : 16.0),
                         ),
+                        floatingLabelBehavior: FloatingLabelBehavior.never,
                       ),
                       style: const TextStyle(color: darkBlue),
                       keyboardType: TextInputType.visiblePassword,
@@ -161,16 +165,19 @@ class _SignInViewState extends State<SignInView> {
                     height: (height < 720 ? 30.0 : 40.0),
                     child: ElevatedButton(
                       onPressed: () async {
+                        LoadingScreen().show(context: context, text: '');
                         final email = _emailTextController.text;
                         final password = _passwordTextController.text;
                         final user =
                             await userController.login(email, password);
                         if (user != null && mounted) {
                           if (user.firstName != 'none') {
+                            LoadingScreen().hide();
                             Navigator.of(context).pushReplacement(
                               createRoute(const MainView()),
                             );
                           } else if (user.firstName == 'none') {
+                            LoadingScreen().hide();
                             Navigator.of(context).push(
                               createRoute(
                                 EnterFirstLastNameView(
@@ -180,6 +187,7 @@ class _SignInViewState extends State<SignInView> {
                             );
                           }
                         } else {
+                          LoadingScreen().hide();
                           Navigator.of(context).pushReplacement(
                             createRoute(const AuthenticationView()),
                           );
