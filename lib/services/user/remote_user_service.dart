@@ -1,9 +1,12 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:feedmedia/model/user.dart';
 import 'package:feedmedia/services/user/local_user_service.dart';
 import 'package:feedmedia/services/user/remote_user_provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' show FirebaseAuth;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart';
 
 class RemoteUserService extends RemoteUserProvider {
   static const _apiAddress = 'https://poeticstamp.backendless.app/api';
@@ -57,8 +60,7 @@ class RemoteUserService extends RemoteUserProvider {
     String userToken,
     String email,
   ) async {
-    await FirebaseAuth.instance
-        .createUserWithEmailAndPassword(email: email, password: password);
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(email: email, password: password);
 
     final request = await http.put(
       Uri.parse('$_apiAddress/users/$objectId'),
@@ -127,8 +129,7 @@ class RemoteUserService extends RemoteUserProvider {
   @override
   Future<List<User?>> search(String value) async {
     final request = await http.get(
-      Uri.parse(
-          "$_apiAddress/data/Users?where=first_name LIKE '$value%'&property=first_name&property=last_name&property=objectId"),
+      Uri.parse("$_apiAddress/data/Users?where=first_name LIKE '$value%'&property=first_name&property=last_name&property=objectId"),
     );
 
     final response = jsonDecode(request.body) as List;
@@ -138,9 +139,7 @@ class RemoteUserService extends RemoteUserProvider {
 
   @override
   Future<User> getPublicUser(String objectId) async {
-    final request = await http.get(
-        Uri.parse('$_apiAddress/data/Users/$objectId'),
-        headers: {'Content-Type': 'application/json'});
+    final request = await http.get(Uri.parse('$_apiAddress/data/Users/$objectId'), headers: {'Content-Type': 'application/json'});
 
     final result = jsonDecode(request.body);
 
@@ -165,8 +164,7 @@ class RemoteUserService extends RemoteUserProvider {
     );
 
     final following = http.put(
-      Uri.parse(
-          '$_apiAddress/data/followers/$currentFollowersObjectId/following'),
+      Uri.parse('$_apiAddress/data/followers/$currentFollowersObjectId/following'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -180,8 +178,7 @@ class RemoteUserService extends RemoteUserProvider {
   @override
   Future<int> followersCount(String followersObjectId) async {
     final request = await http.get(
-      Uri.parse(
-          "$_apiAddress/data/followers/$followersObjectId?property=Count(%60follower%60)"),
+      Uri.parse("$_apiAddress/data/followers/$followersObjectId?property=Count(%60follower%60)"),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -198,8 +195,7 @@ class RemoteUserService extends RemoteUserProvider {
     required String userObjectId,
   }) async {
     final request = await http.get(
-      Uri.parse(
-          "$_apiAddress/data/followers/$userObjectId/follower?where=objectId='$targetedUserObjectId'"),
+      Uri.parse("$_apiAddress/data/followers/$userObjectId/follower?where=objectId='$targetedUserObjectId'"),
       headers: {'Content-Type': 'application/json'},
     );
 
@@ -226,8 +222,7 @@ class RemoteUserService extends RemoteUserProvider {
     );
 
     final following = http.delete(
-      Uri.parse(
-          '$_apiAddress/data/followers/$currentFollowersObjectId/following'),
+      Uri.parse('$_apiAddress/data/followers/$currentFollowersObjectId/following'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -243,14 +238,59 @@ class RemoteUserService extends RemoteUserProvider {
     final result = await http.get(
       Uri.parse('$_apiAddress/users/logout'),
       headers: {
-        'Content-Type':'application/json',
+        'Content-Type': 'application/json',
         'user-token': userToken,
       },
     );
-   if(result.statusCode == 200 && result.bodyBytes.isEmpty){
+    if (result.statusCode == 200 && result.bodyBytes.isEmpty) {
       return true;
-    }else{
+    } else {
       return false;
     }
+  }
+
+  @override
+  Future<int> followingCount(String followersObjectId) async {
+    final request = await http.get(
+      Uri.parse("$_apiAddress/data/followers/$followersObjectId?property=Count(%60following%60)"),
+      headers: {'Content-Type': 'application/json'},
+    );
+
+    final response = jsonDecode(request.body);
+
+    final count = response['count'];
+
+    return count;
+  }
+
+  @override
+  Future<String> updateProfilePicture({
+    required File file,
+    required String userObjectId,
+    required String userToken,
+  }) async {
+    final storageRef = FirebaseStorage.instance.ref('users').child(userObjectId).child('profilePicture').child(basename(file.path));
+
+    final uploadTask = storageRef.putFile(file);
+
+    final TaskSnapshot downloadUrl = await uploadTask;
+    final url = await downloadUrl.ref.getDownloadURL();
+
+    final request = await http.put(
+      Uri.parse('$_apiAddress/users/$userObjectId'),
+      headers: {
+        'Content-Type': 'application/json',
+        'user-token': userToken,
+      },
+      body: jsonEncode(
+        <String, String>{
+          profileImageObjectFieldName: url,
+        },
+      ),
+    );
+
+    final result = jsonDecode(request.body);
+
+    return url;
   }
 }

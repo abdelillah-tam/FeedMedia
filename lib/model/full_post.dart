@@ -3,10 +3,10 @@ import 'package:feedmedia/model/user.dart';
 import 'package:flutter/foundation.dart';
 
 class FullPost {
-  final User user;
-  final Post post;
+  final User? user;
+  final Post? post;
   int likesCount;
-  bool isLiker;
+  bool? isLiker;
   String? likerObjectId;
 
   FullPost({

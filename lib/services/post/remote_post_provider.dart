@@ -14,7 +14,7 @@ abstract class RemotePostProvider {
     required String userToken,
   });
 
-  Future<List<FullPost>> getFollowingPosts({
+  Future<List<FullPost>?> getFollowingPosts({
     required String userToken,
     required String currentFollowersObjectId,
     required String currentUserObjectId,

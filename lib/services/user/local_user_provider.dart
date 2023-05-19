@@ -18,4 +18,9 @@ abstract class LocalUserProvider {
   Future<void> open();
 
   void clearTable();
+
+  Future<bool> updateProfilePictureUrl({
+    required String url,
+    required String userObjectId,
+  });
 }

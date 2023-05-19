@@ -1,7 +1,7 @@
 import 'dart:io';
 
-import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/controller/user_controller.dart';
+import 'package:feedmedia/utilities/dialogs/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -45,24 +45,32 @@ class _EditProfileViewState extends State<EditProfileView> {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(360.0),
-              child: file == null
+              child: file == null && _userController.user!.profileImageUrl != null
                   ? Image.network(
-                      'https://i.stack.imgur.com/oVKTL.jpg',
-                      width: 150.0,
-                    )
-                  : Image.file(
-                      file!,
+                      _userController.user!.profileImageUrl!,
                       width: 150.0,
                       height: 150.0,
                       fit: BoxFit.fitWidth,
-                    ),
+                    )
+                  : _userController.user!.profileImageUrl == null
+                      ? Image.asset(
+                          'assets/images/profile.png',
+                          width: 150.0,
+                          height: 150.0,
+                          fit: BoxFit.fitWidth,
+                        )
+                      : Image.file(
+                          file!,
+                          width: 150.0,
+                          height: 150.0,
+                          fit: BoxFit.fitWidth,
+                        ),
             ),
             TextButton(
               onPressed: () async {
                 final ImagePicker picker = ImagePicker();
 
-                final XFile? image =
-                    await picker.pickImage(source: ImageSource.gallery);
+                final XFile? image = await picker.pickImage(source: ImageSource.gallery);
                 setState(() {
                   file = File(image!.path);
                 });
@@ -70,11 +78,7 @@ class _EditProfileViewState extends State<EditProfileView> {
               child: const Text('Choose picture'),
             ),
             Padding(
-              padding: EdgeInsets.only(
-                top: smallHeight ? 8.0 : 16.0,
-                left: smallHeight ? 8.0 : 16.0,
-                right: smallHeight ? 8.0 : 16.0,
-              ),
+              padding: EdgeInsets.only(top: smallHeight ? 8.0 : 16.0, left: smallHeight ? 8.0 : 16.0, right: smallHeight ? 8.0 : 16.0),
               child: TextField(
                 controller: _firstNameController,
                 cursorWidth: 1.0,
@@ -102,12 +106,21 @@ class _EditProfileViewState extends State<EditProfileView> {
               ),
             ),
             TextButton(
-              onPressed: () {
+              onPressed: () async {
                 final firstName = _firstNameController.text;
                 final lastName = _lastNameController.text;
-
-                _userController.updateFirstAndLastName(
-                    firstName: firstName, lastName: lastName);
+                LoadingScreen().show(context: context, text: '');
+                if (firstName != _userController.user!.firstName || lastName != _userController.user!.lastName) {
+                  await _userController.updateFirstAndLastName(firstName: firstName, lastName: lastName);
+                }
+                if (file != null) {
+                  await _userController.updateProfilePicture(
+                    file: file!,
+                    userObjectId: _userController.user!.objectId!,
+                    userToken: _userController.user!.userToken!,
+                  );
+                }
+                LoadingScreen().hide();
               },
               child: const Text('Save', style: TextStyle(color: Colors.black)),
             ),

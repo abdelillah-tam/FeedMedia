@@ -30,6 +30,7 @@ class _MessagesViewState extends State<MessagesView> {
               236, 248, 255, 1.0),
           statusBarIconBrightness: Brightness.dark,
           systemNavigationBarIconBrightness: Brightness.dark,
+          systemNavigationBarColor: Colors.white,
         ),
       ),
       body: CustomScrollView(
@@ -88,6 +89,7 @@ class _MessagesViewState extends State<MessagesView> {
                 ],
               ),
             ),
+            collapsedHeight: 200.0,
           ),
         ],
       ),

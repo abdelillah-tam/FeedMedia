@@ -1,5 +1,6 @@
 import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/move_to_page.dart';
+import 'package:feedmedia/utilities/dialogs/loading_screen.dart';
 import 'package:feedmedia/view/sign_in_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -33,6 +34,7 @@ class _EnterPasswordViewState extends State<EnterPasswordView> {
   void initState() {
     _passwordTextController = TextEditingController();
     _reEnterPasswordTextController = TextEditingController();
+    LoadingScreen().hide();
     super.initState();
   }
 

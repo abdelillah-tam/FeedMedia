@@ -13,8 +13,7 @@ class PostController extends GetxController {
   late final RemotePostProvider remotePostProvider;
   late final LocalUserProvider localUserProvider;
 
-  RxList<FullPost> homePosts = RxList(List<FullPost>.empty(growable: true));
-
+  RxList<FullPost> homePosts = RxList(List.empty(growable: true));
   final Map<int, _Reaction> _reaction = {};
 
 
@@ -41,7 +40,7 @@ class PostController extends GetxController {
     return posts;
   }
 
-  Future<void> getFollowingPosts({
+  Future<dynamic> getFollowingPosts({
     required String userToken,
     required String currentFollowersObjectId,
     required String currentUserObjectId,
@@ -51,7 +50,12 @@ class PostController extends GetxController {
       currentFollowersObjectId: currentFollowersObjectId,
       currentUserObjectId: currentUserObjectId,
     );
-    homePosts.value = posts;
+    if(posts != null) {
+      homePosts.value = posts;
+    }else{
+      return null;
+    }
+    return '';
   }
 
   Future<void> _like({
@@ -106,7 +110,7 @@ class PostController extends GetxController {
 
     if (likeBool) {
       _reaction[index] = _Reaction(
-        timer: Timer(const Duration(seconds: 2), () async {
+        timer: Timer(const Duration(seconds: 3), () async {
           _reaction[index]!.future = _like(
               postObjectId: postObjectId,
               likerObjectId: likerObjectId,
@@ -117,7 +121,7 @@ class PostController extends GetxController {
       );
     } else {
       _reaction[index] = _Reaction(
-        timer: Timer(const Duration(seconds: 2), () async {
+        timer: Timer(const Duration(seconds: 3), () async {
           _reaction[index]!.future = _unlike(
               postObjectId: postObjectId,
               likerObjectId: likerObjectId,
@@ -128,6 +132,7 @@ class PostController extends GetxController {
       );
     }
   }
+
 }
 
 class _Reaction {

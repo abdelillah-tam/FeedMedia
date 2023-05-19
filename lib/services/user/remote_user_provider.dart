@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:feedmedia/model/user.dart';
 
 abstract class RemoteUserProvider {
@@ -41,7 +43,7 @@ abstract class RemoteUserProvider {
     required String userToken,
   });
 
-  Future<int> followersCount(String objectId);
+  Future<int> followersCount(String followersObjectId);
 
   Future<bool> isFollower({
     required String targetedUserObjectId,
@@ -57,4 +59,12 @@ abstract class RemoteUserProvider {
   });
 
   Future<dynamic> logout({required String userToken});
+
+  Future<int> followingCount(String followersObjectId);
+
+  Future<String> updateProfilePicture({
+    required File file,
+    required String userObjectId,
+    required String userToken,
+  });
 }

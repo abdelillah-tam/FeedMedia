@@ -42,6 +42,7 @@ void main() async {
         showSelectedLabels: false,
         showUnselectedLabels: false,
         type: BottomNavigationBarType.fixed,
+        elevation: 0.0,
       ),
       inputDecorationTheme: InputDecorationTheme(
           fillColor: Colors.white,

@@ -1,11 +1,11 @@
 import 'package:feedmedia/constants.dart';
 import 'package:feedmedia/controller/user_controller.dart';
+import 'package:feedmedia/iconpack/feed_media_icons_icons.dart';
 import 'package:feedmedia/move_to_page.dart';
 import 'package:feedmedia/view/profile_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
-
 import '../model/user.dart';
 
 class SearchView extends StatefulWidget {
@@ -57,7 +57,7 @@ class _SearchViewState extends State<SearchView> {
                 labelStyle: TextStyle(
                   fontSize: (height < 720 ? 12 : 16.0),
                 ),
-                prefixIcon: const Icon(Icons.search_rounded),
+                prefixIcon: const Icon(FeedMediaIcons.search),
                 floatingLabelBehavior: FloatingLabelBehavior.never,
               ),
               style: const TextStyle(color: darkBlue),
@@ -96,7 +96,7 @@ class _SearchViewState extends State<SearchView> {
                             '${users[index]!.firstName} ${users[index]!.lastName}',
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top:8.0),
+                            padding: const EdgeInsets.only(top: 8.0),
                             child: Container(
                               width: double.infinity,
                               height: 0.1,

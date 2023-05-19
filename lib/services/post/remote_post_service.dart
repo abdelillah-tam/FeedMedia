@@ -50,7 +50,7 @@ class RemotePostService extends RemotePostProvider {
   }
 
   @override
-  Future<List<FullPost>> getFollowingPosts({
+  Future<List<FullPost>?> getFollowingPosts({
     required String userToken,
     required String currentFollowersObjectId,
     required String currentUserObjectId,
@@ -75,41 +75,46 @@ class RemotePostService extends RemotePostProvider {
 
     final postsRequest = await http.get(Uri.parse(fullUrl.toString()),
         headers: {'Content-Type': 'application/json', 'user-token': userToken});
+    if (postsRequest.statusCode == 200) {
+      final utf = utf8.decode(postsRequest.bodyBytes);
+      final postsResponse = (jsonDecode(utf) as List)
+          .map((e) => FullPost(
+                user: response
+                    .firstWhere((element) => element.objectId == e['ownerId']),
+                post: Post.fromJson(e),
+                likesCount: e['count'],
+                isLiker: false,
+                likerObjectId: null,
+              ))
+          .toList();
+      List<Future<Response>> isLikerFutures = List.empty(growable: true);
+      for (var item in postsResponse) {
+        final future = http.get(
+          Uri.parse(
+              "$_apiAddress/posts/${item.post!.objectId}/likes?where=objectId = '$currentUserObjectId'&property=objectId"),
+          headers: {
+            'Content-Type': 'application/json',
+            'user-token': userToken
+          },
+        );
 
-    final utf = utf8.decode(postsRequest.bodyBytes);
-    final postsResponse = (jsonDecode(utf) as List)
-        .map((e) => FullPost(
-              user: response
-                  .firstWhere((element) => element.objectId == e['ownerId']),
-              post: Post.fromJson(e),
-              likesCount: e['count'],
-              isLiker: false,
-              likerObjectId: null,
-            ))
-        .toList();
-
-    List<Future<Response>> isLikerFutures = List.empty(growable: true);
-    for (var item in postsResponse) {
-      final future = http.get(
-        Uri.parse(
-            "https://cozyproperty.backendless.app/api/data/posts/${item.post.objectId}/likes?where=objectId = '$currentUserObjectId'&property=objectId"),
-        headers: {'Content-Type': 'application/json', 'user-token': userToken},
-      );
-
-      isLikerFutures.add(future);
-    }
-
-    final isLikerResults = await Future.wait(isLikerFutures);
-
-    for (int i = 0; i < isLikerResults.length; i++) {
-      final value = jsonDecode(isLikerResults[i].body) as List;
-      if (value.isNotEmpty) {
-        postsResponse[i].isLiker = true;
-        postsResponse[i].likerObjectId = currentUserObjectId;
+        isLikerFutures.add(future);
       }
+
+      final isLikerResults = await Future.wait(isLikerFutures);
+
+      for (int i = 0; i < isLikerResults.length; i++) {
+        final value = jsonDecode(isLikerResults[i].body) as List;
+        if (value.isNotEmpty) {
+          postsResponse[i].isLiker = true;
+          postsResponse[i].likerObjectId = currentUserObjectId;
+        }
+      }
+
+      return postsResponse;
     }
 
-    return postsResponse;
+    return null;
   }
 
   @override
@@ -125,10 +130,9 @@ class RemotePostService extends RemotePostProvider {
       body: jsonEncode([likerObjectId]),
     );
 
-
     final count = http.get(
       Uri.parse(
-          'https://cozyproperty.backendless.app/api/data/posts/$postObjectId?property=objectId&property=Count(%60likes%60)'),
+          '$_apiAddress/posts/$postObjectId?property=objectId&property=Count(%60likes%60)'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,
@@ -173,7 +177,7 @@ class RemotePostService extends RemotePostProvider {
 
     final count = await http.get(
       Uri.parse(
-          'https://cozyproperty.backendless.app/api/data/posts/$postObjectId?property=objectId&property=Count(%60likes%60)'),
+          '$_apiAddress/posts/$postObjectId?property=objectId&property=Count(%60likes%60)'),
       headers: {
         'Content-Type': 'application/json',
         'user-token': userToken,

@@ -48,10 +48,7 @@ class _ProfileViewState extends State<ProfileView> {
                   child: const Text('Log out'),
                   onTap: () async {
                     final result = await _userController.logout();
-                    result && mounted
-                        ? Navigator.of(context)
-                            .pushReplacement(createRoute(const AuthenticationView()))
-                        : print('error');
+                    result && mounted ? Navigator.of(context).pushReplacement(createRoute(const AuthenticationView())) : print('error');
                   },
                 ),
               ];
@@ -108,12 +105,12 @@ class ProfileBody extends StatefulWidget {
   State<ProfileBody> createState() => _ProfileBodyState();
 }
 
-class _ProfileBodyState extends State<ProfileBody>
-    with SingleTickerProviderStateMixin {
+class _ProfileBodyState extends State<ProfileBody> with SingleTickerProviderStateMixin {
   final UserController _userController = Get.find();
   final PostController _postController = Get.find();
 
   final ValueNotifier<int> followers = ValueNotifier(0);
+  final ValueNotifier<int> following = ValueNotifier(0);
 
   final ValueNotifier<bool> _isLoading = ValueNotifier(true);
   final ValueNotifier<bool> _isFollower = ValueNotifier(false);
@@ -145,18 +142,20 @@ class _ProfileBodyState extends State<ProfileBody>
         _isFollower.value = value;
       });
     }
-    _getPosts = _postController.getPosts(
-        _user == null ? _userController.user! : _user!,
-        _userController.user!.userToken!);
+    _getPosts = _postController.getPosts(_user == null ? _userController.user! : _user!, _userController.user!.userToken!);
     _tabController = TabController(length: tabs.length, vsync: this);
     _userController.followersCount.listenAndPump((value) {
       if (mounted) {
         followers.value = value;
       }
     });
-    _userController.getFollowersCount(_user != null
-        ? _user!.followersObjectId
-        : _currentUser.followersObjectId);
+    _userController.followingCount.listenAndPump((value) {
+      if (mounted) {
+        following.value = value;
+      }
+    });
+    _userController.getFollowersCount(_user != null ? _user!.followersObjectId : _currentUser.followersObjectId);
+    _userController.getFollowingCount(_user != null ? _user!.followersObjectId : _currentUser.followersObjectId);
     super.initState();
   }
 
@@ -167,12 +166,25 @@ class _ProfileBodyState extends State<ProfileBody>
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            const Text(
-              '0 Following',
-            ),
-            Image.network(
-              'https://i.stack.imgur.com/oVKTL.jpg',
-              width: 80.0,
+            ValueListenableBuilder<int>(
+                valueListenable: following,
+                builder: (context, value, child) {
+                  return Text(
+                    '$value Following',
+                  );
+                }),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(360.0),
+              child: Image(
+                image: _user != null && _user?.profileImageUrl != null
+                    ? Image.network(_user!.profileImageUrl!).image
+                    : _currentUser.profileImageUrl != null
+                        ? Image.network(_currentUser.profileImageUrl!).image
+                        : const AssetImage('assets/images/profile.png'),
+                height: 120.0,
+                width: 120.0,
+                fit: BoxFit.fitWidth,
+              ),
             ),
             ValueListenableBuilder<int>(
               valueListenable: followers,
@@ -202,9 +214,11 @@ class _ProfileBodyState extends State<ProfileBody>
                       ),
                     );
                   },
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: blue, shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(360.0))),
                   child: const Text(
                     'Edit Profile',
-                    style: TextStyle(color: blue),
+                    style: TextStyle(color: Colors.white),
                   ),
                 ),
               )
@@ -226,32 +240,24 @@ class _ProfileBodyState extends State<ProfileBody>
                                     _isLoading.value = true;
                                     if (!isFollower) {
                                       await _userController.follow(
-                                        currentUserObjectId:
-                                            _currentUser.objectId!,
-                                        currentFollowersObjectId:
-                                            _currentUser.followersObjectId,
+                                        currentUserObjectId: _currentUser.objectId!,
+                                        currentFollowersObjectId: _currentUser.followersObjectId,
                                         userObjectId: _user!.objectId!,
-                                        userFollowersObjectId:
-                                            _user!.followersObjectId,
+                                        userFollowersObjectId: _user!.followersObjectId,
                                         userToken: _currentUser.userToken!,
                                       );
                                     } else {
                                       await _userController.unfollow(
-                                        currentUserObjectId:
-                                            _currentUser.objectId!,
-                                        currentFollowersObjectId:
-                                            _currentUser.followersObjectId,
+                                        currentUserObjectId: _currentUser.objectId!,
+                                        currentFollowersObjectId: _currentUser.followersObjectId,
                                         userObjectId: _user!.objectId!,
-                                        userFollowersObjectId:
-                                            _user!.followersObjectId,
-                                        userToken:
-                                            _userController.user!.userToken!,
+                                        userFollowersObjectId: _user!.followersObjectId,
+                                        userToken: _userController.user!.userToken!,
                                       );
                                     }
                                     await _userController
                                         .isFollower(
-                                      targetedUserObjectId:
-                                          _currentUser.objectId!,
+                                      targetedUserObjectId: _currentUser.objectId!,
                                       userObjectId: _user!.followersObjectId,
                                     )
                                         .then((value) {
@@ -293,8 +299,7 @@ class _ProfileBodyState extends State<ProfileBody>
                       width: 120.0,
                       child: ElevatedButton(
                         onPressed: () {
-                          Navigator.of(context)
-                              .push(createRoute(const ChatChannelView()));
+                          Navigator.of(context).push(createRoute(const ChatChannelView()));
                         },
                         style: ElevatedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -328,12 +333,19 @@ class _ProfileBodyState extends State<ProfileBody>
                 builder: (context, state) {
                   if (state.connectionState == ConnectionState.done) {
                     if (state.data!.isNotEmpty) {
-                      return _PostWidget(
-                          state: state, user: _user ?? _currentUser);
+                      return _PostWidget(state: state, user: _user ?? _currentUser);
                     } else {
-                      return const Center(
-                        child:
-                            Text('No posts', style: TextStyle(color: darkBlue)),
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/images/emptybox.png',
+                              height: 100.0,
+                            ),
+                            const Text('No posts', style: TextStyle(color: darkBlue, fontSize: 20.0)),
+                          ],
+                        ),
                       );
                     }
                   } else {
@@ -384,15 +396,13 @@ class _PostWidget extends StatelessWidget {
               ),
             ),
             child: Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
                     '${user.firstName} ${user.lastName}',
-                    style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 13.0),
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13.0),
                   ),
                   Padding(
                     padding: const EdgeInsets.only(top: 8.0),
@@ -424,8 +434,7 @@ class ValueListenableBuilder2<T, N> extends StatelessWidget {
   final ValueListenable<T> first;
   final ValueListenable<N> second;
   final Widget child;
-  final Widget Function(BuildContext context, T one, N two, Widget child)
-      builder;
+  final Widget Function(BuildContext context, T one, N two, Widget child) builder;
 
   @override
   Widget build(BuildContext context) {

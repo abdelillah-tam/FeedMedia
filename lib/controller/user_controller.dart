@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:feedmedia/services/user/local_user_provider.dart';
 import 'package:feedmedia/services/user/local_user_service.dart';
 import 'package:feedmedia/services/user/remote_user_provider.dart';
@@ -16,6 +18,7 @@ class UserController extends GetxController {
   late User? user;
 
   RxInt followersCount = 0.obs;
+  RxInt followingCount = 0.obs;
 
   @override
   void onInit() async {
@@ -26,10 +29,8 @@ class UserController extends GetxController {
     super.onInit();
   }
 
-  Future<User?> registerByGoogle(
-      {required String email, required String accessToken}) async {
-    final registeredUser = await _remoteUserProvider.register(
-        email: email, accessToken: accessToken);
+  Future<User?> registerByGoogle({required String email, required String accessToken}) async {
+    final registeredUser = await _remoteUserProvider.register(email: email, accessToken: accessToken);
 
     await _localUserProvider.register(user: registeredUser);
 
@@ -43,8 +44,7 @@ class UserController extends GetxController {
   }
 
   Future<User?> login(String email, String password) async {
-    final userFromNet =
-        await _remoteUserProvider.login(email: email, password: password);
+    final userFromNet = await _remoteUserProvider.login(email: email, password: password);
 
     await _localUserProvider.login(userFromNet!);
 
@@ -59,11 +59,9 @@ class UserController extends GetxController {
     String password,
     String email,
   ) async {
-    final isPasswordCreated = await _remoteUserProvider.createPassword(
-        objectId, password, userToken, email);
+    final isPasswordCreated = await _remoteUserProvider.createPassword(objectId, password, userToken, email);
 
-    final result =
-        await _localUserProvider.createPassword(isPasswordCreated ? 1 : 0);
+    final result = await _localUserProvider.createPassword(isPasswordCreated ? 1 : 0);
     FirebaseAuth.instance.signOut();
     _localUserProvider.clearTable();
 
@@ -82,9 +80,7 @@ class UserController extends GetxController {
     ) as User;
 
     final result = await _localUserProvider.updateFirstAndLastName(
-        firstName: updatedUser.firstName,
-        lastName: updatedUser.lastName,
-        objectId: updatedUser.objectId!);
+        firstName: updatedUser.firstName, lastName: updatedUser.lastName, objectId: updatedUser.objectId!);
 
     final oldUser = user;
     result ? user = await getUser() : oldUser;
@@ -108,8 +104,7 @@ class UserController extends GetxController {
     required String targetedUserObjectId,
     required String userObjectId,
   }) async {
-    final result = await _remoteUserProvider.isFollower(
-        targetedUserObjectId: targetedUserObjectId, userObjectId: userObjectId);
+    final result = await _remoteUserProvider.isFollower(targetedUserObjectId: targetedUserObjectId, userObjectId: userObjectId);
     return result;
   }
 
@@ -154,9 +149,15 @@ class UserController extends GetxController {
     followersCount.value = count;
   }
 
-  Future<bool> logout() async{
+  void getFollowingCount(String followersObjectId) async {
+    followingCount.value = 0;
+    final count = await _remoteUserProvider.followingCount(followersObjectId);
+    followingCount.value = count;
+  }
+
+  Future<bool> logout() async {
     final result = await _remoteUserProvider.logout(userToken: user!.userToken!);
-    if(result){
+    if (result) {
       await FirebaseAuth.instance.signOut();
       await GoogleSignIn().signOut();
       _localUserProvider.clearTable();
@@ -164,5 +165,23 @@ class UserController extends GetxController {
     }
 
     return false;
+  }
+
+  Future<void> updateProfilePicture({
+    required File file,
+    required String userObjectId,
+    required String userToken,
+  }) async {
+    final result = await _remoteUserProvider.updateProfilePicture(
+      file: file,
+      userObjectId: userObjectId,
+      userToken: userToken,
+    );
+
+    final userUpdated = await _localUserProvider.updateProfilePictureUrl(url: result, userObjectId: userObjectId);
+
+    if(userUpdated){
+      user = await getUser();
+    }
   }
 }

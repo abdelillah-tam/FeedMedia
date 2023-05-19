@@ -9,6 +9,7 @@ class User {
   final int isPasswordCreated;
   final String followersObjectId;
   final String userUID;
+  final String? profileImageUrl;
 
   User({
     required this.id,
@@ -21,6 +22,7 @@ class User {
     required this.isPasswordCreated,
     required this.followersObjectId,
     required this.userUID,
+    required this.profileImageUrl,
   });
 
   User.fromJson(Map<String, dynamic> json)
@@ -37,7 +39,8 @@ class User {
                 ? 1
                 : 0,
         followersObjectId = json['followersObjectId'] ?? 'none',
-        userUID = json['userUID'] ?? '';
+        userUID = json['userUID'] ?? '',
+        profileImageUrl = json['profileImageUrl'];
 
   @override
   bool operator ==(covariant User other) => id == other.id;

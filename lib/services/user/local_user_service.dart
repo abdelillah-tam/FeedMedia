@@ -28,6 +28,7 @@ class LocalUserService extends LocalUserProvider {
       isPasswordCreatedFieldName: user.isPasswordCreated,
       followersObjectIdFieldName: user.followersObjectId,
       userUidFieldName: '',
+      profileImageObjectFieldName: null,
     });
   }
 
@@ -49,6 +50,7 @@ class LocalUserService extends LocalUserProvider {
         isPasswordCreated: list[0][isPasswordCreatedFieldName] as int,
         followersObjectId: list[0][followersObjectIdFieldName].toString(),
         userUID: list[0][userUidFieldName].toString(),
+        profileImageUrl: list[0][profileImageObjectFieldName].toString(),
       );
     } else {
       return null;
@@ -123,6 +125,7 @@ class LocalUserService extends LocalUserProvider {
       isPasswordCreatedFieldName: user.isPasswordCreated,
       followersObjectIdFieldName: user.followersObjectId,
       userUidFieldName: user.userUID,
+      profileImageObjectFieldName: user.profileImageUrl,
     });
 
     if (userId != 0) {
@@ -143,6 +146,7 @@ class LocalUserService extends LocalUserProvider {
         isPasswordCreated: gotUser[0][isPasswordCreatedFieldName] as int,
         followersObjectId: gotUser[0][followersObjectIdFieldName].toString(),
         userUID: gotUser[0][userUidFieldName].toString(),
+        profileImageUrl: gotUser[0][profileImageObjectFieldName].toString(),
       );
       return userFromDb;
     }
@@ -177,6 +181,30 @@ class LocalUserService extends LocalUserProvider {
 
     await db.delete(userTableName);
   }
+
+  // This function just for updating db if needed
+  /*_alterTable() async {
+    await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrown();
+
+    await db.execute('ALTER TABLE $userTableName ADD COLUMN $profileImageObjectFieldName TEXT');
+  }*/
+
+  @override
+  Future<bool> updateProfilePictureUrl({required String url, required String userObjectId}) async {
+    await _ensureDbIsOpen();
+    final db = _getDatabaseOrThrown();
+
+    final userId = await db.update(
+        userTableName,
+        <String, String>{
+          profileImageObjectFieldName: url,
+        },
+        where: '$objectIdFieldName = ?',
+        whereArgs: [userObjectId]);
+
+    return userId != 0 ? true : false;
+  }
 }
 
 const dbName = 'feedmedia.db';
@@ -191,6 +219,7 @@ $lastNameFieldName TEXT NOT NULL,
 $userUidFieldName TEXT NOT NULL,
 $isPasswordCreatedFieldName INTEGER NOT NULL,
 $followersObjectIdFieldName TEXT NOT NULL,
+$profileImageObjectFieldName TEXT,
 PRIMARY KEY ("id")
 );
 ''';
@@ -205,3 +234,4 @@ const firstNameFieldName = 'first_name';
 const lastNameFieldName = 'last_name';
 const isPasswordCreatedFieldName = 'isPasswordCreated';
 const followersObjectIdFieldName = 'followersObjectId';
+const profileImageObjectFieldName = 'profileImageUrl';
